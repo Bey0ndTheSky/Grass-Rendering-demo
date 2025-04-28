@@ -9,6 +9,7 @@ class Mesh;
 class MeshAnimation;
 class MeshMaterial;
 class HeightMap;
+class Surface;
 class Camera;
 
 enum ShaderIndices{
@@ -28,7 +29,6 @@ public:
     void RenderScene() override;
     void UpdateScene(float dt) override;
     void PresentScene();
-    void updateParticles(float dt);
     void DrawPostProcess();
     void DrawGround();
     void DrawSkybox();
@@ -40,7 +40,7 @@ public:
     void TogglePostProcess() { this->postProcess = !this->postProcess; }
 
 protected:
-    HeightMap* heightMap;
+    Surface* heightMap;
     std::vector<Shader*> shaderVec;
     Shader* shader;
    

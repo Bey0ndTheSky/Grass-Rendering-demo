@@ -13,11 +13,11 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
 
     //heightMap = new HeightMap(TEXTUREDIR "valleyTex.png");
     //heightMap->SetPrimitiveType(GL_PATCHES);
-    heightMap = new Surface(50.0f, Vector3(5,2,5));
-    camera = new Camera(-40, 270, Vector3());
+    heightMap = new Surface(Vector3(2000,20,2000), 30.0f);
+    camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize();
-    camera->SetPosition(dimensions * Vector3(0.2, 1, 0.2));
+    camera->SetPosition(dimensions * Vector3(-0.1, 10, -0.1));
 
     for (int i = 0; i < 5; ++i) {
         camera->cameraPath.emplace_back(dimensions*camerapos[i]);
@@ -102,21 +102,8 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     currentFrame = 0;
     frameTime = 0.0f;
 
-    light = new Light(dimensions * Vector3(0.2f, 15.0f, 0.5f),
+    light = new Light(dimensions * Vector3(0.5f, 150.0f, 0.5f),
         Vector4(1, 1, 1, 1), dimensions.x * 4.25f);
-
-    particles = new Vector3[PARTICLE_NUM];
-    for (int i = 0; i < PARTICLE_NUM; ++i) {
-        Vector3 p = Vector3(
-            rand() % static_cast<int>(dimensions.x),
-            rand() % static_cast<int>(dimensions.y * 5),
-            rand() % static_cast<int>(dimensions.z)
-        );
-        particles[i] = p;
-    }
-    snow = Mesh::GeneratePoint();
-    snow->SetInstances(particles, PARTICLE_NUM);
-    snow->SetPrimitiveType(GL_POINTS);
 
     init = true;
 }

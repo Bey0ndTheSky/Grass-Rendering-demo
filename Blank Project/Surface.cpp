@@ -1,9 +1,12 @@
 #include "Surface.h"
 #include "../nclgl/Frustum.h"
 
-Surface::Surface(float width, Vector3 vertexScale) : Mesh() {
+Surface::Surface(Vector3 Size, float spacing) : Mesh() {
+    this->size = Size;
+    this->spacing = spacing;
+
 	// Calculate grid dimensions based on vertex density
-	int gridWidth = width * vertexScale.x;
+	int gridWidth = (Size.x / spacing) + 1;
     numVertices = gridWidth * gridWidth;
     numIndices = (gridWidth - 1) * (gridWidth - 1) * 6;
     vertices = new Vector3[numVertices];
@@ -17,7 +20,7 @@ Surface::Surface(float width, Vector3 vertexScale) : Mesh() {
     for (int z = 0; z < gridWidth; ++z) {
         for (int x = 0; x < gridWidth; ++x) {
             int offset = (z * gridWidth) + x;
-            vertices[offset] = Vector3(x, 0.0f, z);
+            vertices[offset] = Vector3(x * spacing, 0.0f, z * spacing);
             textureCoords[offset] = Vector2(x, z) * textureScale;
             colours[offset] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         }
@@ -48,9 +51,9 @@ Surface::Surface(float width, Vector3 vertexScale) : Mesh() {
 
     SetPrimitiveType(GL_PATCHES);
 
-	size.x = gridWidth;
-    size.y = 1;
-    size.z = gridWidth;
+	//size.x = gridWidth;
+    //size.y = 1.0f * 255.0f;
+    //size.z = gridWidth;
 }
 
 Surface::~Surface() {
