@@ -2,6 +2,7 @@
 
 #include <string>
 #include "mesh.h"
+class Frustum;
 
 class HeightMap : public Mesh {
 public:

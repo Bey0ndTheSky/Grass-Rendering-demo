@@ -14,12 +14,6 @@ class Camera;
 enum ShaderIndices{
         GROUND_SHADER,
         SKYBOX_SHADER,
-        REFLECT_SHADER,
-        SCENE_SHADER,
-        SCENE_INSTANCED_SHADER,
-        SKINNING_SHADER,
-        SNOW_SHADER,
-        SNOWFALL_SHADER,
         POST_PROCESS_SHADER,
         RENDER_SHADER,
         SHADOW_SHADER
@@ -38,46 +32,21 @@ public:
     void DrawPostProcess();
     void DrawGround();
     void DrawSkybox();
-    void DrawSnow();
     void DrawShadowScene();
-    void DrawWater();
-    void DrawReflect(SceneNode* n);
-    void DrawAnim(SceneNode* n);
     void SetTextures();
     void SetShaders();
-    void SetMeshes();
     void changeScene();
     void LockCamera();
     void TogglePostProcess() { this->postProcess = !this->postProcess; }
 
-    void BuildNodeLists(SceneNode* from);
-    void SortNodeLists();
-    void ClearNodeLists();
-    void DrawNodes();
-    void DrawNode(SceneNode* n);
-
-    SceneNode* loadMeshAndMaterial(const std::string& meshFile, const std::string& materialFile = "");
-
 protected:
-    SceneNode* root1;
-    SceneNode* root2;
-    int activeScene = 1;
     HeightMap* heightMap;
     std::vector<Shader*> shaderVec;
     Shader* shader;
    
     Camera* camera;
     GLuint terrainTex;
-    GLuint waterTex;
-    GLuint waterBump;
-    GLuint dispTex;
     GLuint windTex;
-    GLuint snowDiff;
-    GLuint snowBump;
-    GLuint snowTex;
-    GLuint snowFlake;
-    GLuint cubeMap1;
-    GLuint cubeMap2;
     
     GLuint bufferFBO;
     GLuint processFBO;
@@ -88,16 +57,11 @@ protected:
     GLuint shadowTex;
 
     Frustum frameFrustum;
-    std::vector<SceneNode*> transparentNodeList;
-    std::vector<SceneNode*> nodeList;
 
     Mesh* quad;
     Mesh* mesh;
     Mesh* snow;
     Light* light;
-
-    MeshAnimation* anim;
-    MeshMaterial* material;
 
     bool postProcess = false;
     int postTex = 0;

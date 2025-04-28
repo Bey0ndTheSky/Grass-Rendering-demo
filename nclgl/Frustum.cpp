@@ -11,6 +11,15 @@ bool Frustum::InsideFrustum(SceneNode& n) {
     return true; // SceneNode is inside every plane...
 }
 
+bool Frustum::InsideFrustum(Vector3& v) {
+    for (int p = 0; p < 6; ++p) {
+        if (!planes[p].SphereInPlane(v, 0.01f)) {
+            return false; 
+        }
+    }
+    return true; // Vertex is inside every plane...
+}
+
 void Frustum::FromMatrix(const Matrix4& mat) {
     Vector3 xaxis = Vector3(mat.values[0], mat.values[4], mat.values[8]);
     Vector3 yaxis = Vector3(mat.values[1], mat.values[5], mat.values[9]);
