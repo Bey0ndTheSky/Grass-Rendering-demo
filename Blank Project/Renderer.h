@@ -47,6 +47,7 @@ protected:
     Camera* camera;
     GLuint terrainTex;
     GLuint windTex;
+    GLuint dispTex;
     
     GLuint bufferFBO;
     GLuint processFBO;

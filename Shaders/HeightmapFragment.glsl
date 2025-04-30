@@ -34,7 +34,7 @@ void main(void) {
 	
 	vec4 groundColour;
 	if (length(IN.colour.rgb) > 0.1) {
-			groundColour = mix(diffuse, IN.colour, 0.15);
+			groundColour = mix(diffuse, IN.colour, 0.45);
 		} 
 	else {
 		groundColour = diffuse;

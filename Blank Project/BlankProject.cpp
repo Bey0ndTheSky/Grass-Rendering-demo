@@ -1,5 +1,6 @@
 #include "../nclgl/window.h"
 #include "Renderer.h"
+#include "UISystem.h"
 
 int main() {
 	Window w("Coursework!", 1600, 900, false);
@@ -12,8 +13,9 @@ int main() {
 		return -1;
 	}
 
+	UISystem::Initialize(w.GetHandle());
 	w.LockMouseToWindow(true);
-	w.ShowOSPointer(false);
+	//w.ShowOSPointer(false);
 
 	while (w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
 		float timestep = w.GetTimer()->GetTimeDeltaSeconds();

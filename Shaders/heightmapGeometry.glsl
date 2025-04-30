@@ -141,7 +141,7 @@ void main(void) {
 		}
 		
 		gl_Position = toClipSpace(baseRight);
-		OUT.colour = colourBase;
+		OUT.colour = IN[i].colour; //colourBase;
 		EmitVertex();
 		
 		gl_Position = toClipSpace(baseLeft);
@@ -158,7 +158,7 @@ void main(void) {
 			
 			vertLeft = IN[i].worldPos + t * windRotation * (vertLeft - IN[i].worldPos);
 			vertRight = IN[i].worldPos + t * windRotation * (vertRight - IN[i].worldPos);
-			OUT.colour = mix(colourBase, colourTop, t);  // Interpolating color
+			OUT.colour = mix(IN[i].colour, colourTop, t); //mix(colourBase, colourTop, t);  // Interpolating color
 			
 			// Emit the segment vertex
 			gl_Position = toClipSpace(vertRight);
@@ -169,7 +169,7 @@ void main(void) {
 		}
 		
 		gl_Position = toClipSpace(top);
-		OUT.colour = colourTop;
+		OUT.colour = IN[i].colour; //colourTop;
 		EmitVertex();
 		
 		EndPrimitive();

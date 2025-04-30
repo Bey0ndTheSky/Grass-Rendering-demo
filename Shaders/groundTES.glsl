@@ -47,7 +47,6 @@ vec4 interpolate4D(vec4 v0, vec4 v1, vec4 v2)
 
 
 void main() {
-    
 	OUT.texCoord = interpolate2D(IN[0].texCoord, IN[1].texCoord, IN[2].texCoord);
 	OUT.colour = interpolate4D(IN[0].colour, IN[1].colour, IN[2].colour);  
 	OUT.normal = normalize(interpolate3D(IN[0].normal, IN[1].normal, IN[2].normal));
@@ -55,8 +54,8 @@ void main() {
 	OUT.binormal = normalize(interpolate3D(IN[0].binormal, IN[1].binormal, IN[2].binormal));
 	OUT.worldPos = interpolate3D(IN[0].worldPos, IN[1].worldPos, IN[2].worldPos);
 	
-	float displacement = texture(DisplacementMap, OUT.texCoord.xy / 10.24).x;
-    OUT.worldPos += OUT.normal * displacement * dispFactor;
+	float height = texture(DisplacementMap, OUT.texCoord.xy).x;
+    OUT.worldPos.y = height * dispFactor * 255.0;
 		
     gl_Position = projMatrix * viewMatrix * vec4(OUT.worldPos, 1.0);
 }

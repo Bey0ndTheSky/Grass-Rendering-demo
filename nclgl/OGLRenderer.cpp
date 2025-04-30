@@ -134,6 +134,19 @@ OGLRenderer::OGLRenderer(Window &window)	{
 
 	//If we get this far, everything's going well!
 
+	// DISABLE V-SYNC
+	typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALEXTPROC)(int);
+	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
+
+	// Get the function pointer
+	wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+
+	// Disable vsync by setting swap interval to 0
+	if (wglSwapIntervalEXT) {
+		wglSwapIntervalEXT(0); // 0 = no vsync, 1 = vsync
+	}
+	// DISABLE V-SYNC
+
 #ifdef OPENGL_DEBUGGING
 	glDebugMessageCallbackARB(&OGLRenderer::DebugCallback, NULL);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);

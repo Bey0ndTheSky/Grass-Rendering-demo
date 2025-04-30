@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Mouse.h"
 #include "Keyboard.h"
+#include "../imgui/imgui.h"
 
 Window* Window::window		= nullptr;
 Keyboard*Window::keyboard	= nullptr;
@@ -174,7 +175,14 @@ void Window::CheckMessages(MSG &msg)	{
 	}
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)	{
+
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam)) {
+		return true;
+	}
+
     switch(message)	 {
         case(WM_DESTROY):	{
 			window->ShowOSPointer(true);

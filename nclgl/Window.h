@@ -68,6 +68,7 @@ protected:
 
 	OGLRenderer*		renderer;
 
+	bool				active;
 	bool				forceQuit;
 	bool				init;
 	bool				fullScreen;
@@ -75,6 +76,8 @@ protected:
 	bool				showMouse;
 	bool				mouseLeftWindow;
 	bool				isActive;
+	bool				minimised;
+	bool				maximised;
 
 	Vector2				position;
 	Vector2				size;

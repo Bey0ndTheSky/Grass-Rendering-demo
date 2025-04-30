@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Surface.h"
+#include "UISystem.h"
 #include "../nclgl/Camera.h"
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/MeshAnimation.h"
@@ -11,13 +12,11 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    //heightMap = new HeightMap(TEXTUREDIR "valleyTex.png");
-    //heightMap->SetPrimitiveType(GL_PATCHES);
-    heightMap = new Surface(Vector3(2000,20,2000), 30.0f);
+    heightMap = new Surface(Vector3(10000,20,10000), 50.0f);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize();
-    camera->SetPosition(dimensions * Vector3(-0.1, 10, -0.1));
+    camera->SetPosition(dimensions * Vector3(-0.01, 10, -0.01));
 
     for (int i = 0; i < 5; ++i) {
         camera->cameraPath.emplace_back(dimensions*camerapos[i]);
@@ -153,9 +152,12 @@ void Renderer::UpdateScene(float dt) {
 }
 
 void Renderer::RenderScene() {
+    UISystem::GetInstance()->StartFrame();
     DrawScene();
+    
     if (postProcess) { DrawPostProcess(); }
     PresentScene();
+    UISystem::GetInstance()->EndFrame();
 }
 
 void Renderer::DrawScene() {
@@ -207,15 +209,14 @@ void Renderer::DrawPostProcess() {
 }
 
 void Renderer::changeScene() {
-    light->SetPosition(heightMap->GetHeightmapSize() * Vector3(0.2, 10, 0.5));
+    light->SetPosition(heightMap->GetHeightmapSize() * Vector3(0.5f, 150.0f, 0.5f));
     light->SetColour(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-    light->SetRadius(heightMap->GetHeightmapSize().x * 3.25f);
+    light->SetRadius(heightMap->GetHeightmapSize().x * 4.55f);
     currentFrame = 0;
     frameTime = 0.0f;
 }
 
 void Renderer::DrawGround() {
-
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
 
@@ -226,6 +227,10 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, terrainTex);
 
+    glUniform1i(glGetUniformLocation(shader->GetProgram(), "DisplacementMap"), 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, dispTex);
+
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "windMap"), 2);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, windTex);
@@ -234,10 +239,9 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 0.0f);
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 2.0f);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), 25.0f);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), 5.0f);
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 0.0f);
 
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windTraslate"), windTranslate);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windStrength"), windStrength);
@@ -319,10 +323,15 @@ void Renderer::SetTextures() {
         SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS
     );
 
+    dispTex = SOIL_load_OGL_texture(
+        TEXTUREDIR "valleyTex.png", SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS
+    );
+
     SetTextureRepeating(terrainTex, true);
     SetTextureRepeating(windTex, true);
 
-    if (!terrainTex || !windTex) {
+    if (!terrainTex || !windTex || !dispTex) {
         std::cerr << "Texture loading failed!" << std::endl;
         std::exit(EXIT_FAILURE);
     }
