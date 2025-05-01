@@ -29,9 +29,9 @@ out Vertex {
 
 void main(void) {
     OUT.colour = colour;
-    OUT.texCoord = texCoord;
+    OUT.texCoord = texCoord * vec2(VertexScale.x, VertexScale.z);
 	
-	float height = texture(DisplacementMap, OUT.texCoord.xy).x;
+	float height = texture(DisplacementMap, texCoord.xy).x;
 	vec3 scaledPosition = position;
     scaledPosition.y = height * 255.0;
 	scaledPosition = scaledPosition * VertexScale;

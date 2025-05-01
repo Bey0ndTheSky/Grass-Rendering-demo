@@ -50,7 +50,7 @@ void UISystem::FramerateUI() {
 void UISystem::DebugUI() {
 	ImGui::SetNextWindowPos(ImVec2(1200, 20), ImGuiCond_Always);
 	ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
-	ImGui::SliderFloat("Size", &vertexScale, 1.0f, 15.0f);
+	ImGui::SliderFloat("Size", &vertexScale, 1.0f, 25.0f);
 	ImGui::SliderFloat("Height", &heightScale, 0.0f, 5.0f);
 	ImGui::Checkbox("ColourMode", &colourMode);
 	//toggle
