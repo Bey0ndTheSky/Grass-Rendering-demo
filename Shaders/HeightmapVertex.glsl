@@ -3,6 +3,13 @@
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
+uniform mat4 shadowMatrix;
+uniform vec4 lightColour;
+uniform vec3 lightPos;
+uniform float lightRadius;
+
+uniform vec3 VertexScale = vec3(10.0, 1.0, 10.0);
+uniform sampler2D DisplacementMap;
 
 in vec3 position; 
 in vec2 texCoord; 
@@ -17,12 +24,18 @@ out Vertex {
     vec3 tangent; 
     vec3 binormal;
 	vec3 worldPos;
+    vec4 shadowProj;
 } OUT;
 
 void main(void) {
     OUT.colour = colour;
     OUT.texCoord = texCoord;
-
+	
+	float height = texture(DisplacementMap, OUT.texCoord.xy).x;
+	vec3 scaledPosition = position;
+    scaledPosition.y = height * 255.0;
+	scaledPosition = scaledPosition * VertexScale;
+	
     mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
 
     vec3 wNormal = normalize(normalMatrix * normalize(normal));
@@ -32,7 +45,11 @@ void main(void) {
     OUT.tangent = wTangent;
     OUT.binormal = cross(wTangent, wNormal) * tangent.w;
 
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    OUT.worldPos = worldPos.xyz;
-    gl_Position = vec4(position, 1.0);
+    vec4 worldPos = modelMatrix * vec4(scaledPosition, 1.0);
+    OUT.worldPos = VertexScale * worldPos.xyz;
+    gl_Position = projMatrix * viewMatrix * worldPos;
+	
+	vec3 viewDir = normalize (lightPos - worldPos.xyz);
+	vec4 pushVal = vec4(OUT.normal, 0) * dot(viewDir, OUT.normal );
+	OUT.shadowProj = shadowMatrix * (worldPos + pushVal);
 }

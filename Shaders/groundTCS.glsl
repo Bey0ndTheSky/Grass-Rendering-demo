@@ -24,35 +24,36 @@ out Vertex {
 
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition;
-uniform vec3 hSize;
+uniform bool colourMode = false;
+
+// Configurable tessellation parameters
+const float MAX_TESS_LEVEL = 1.0;        // Maximum tessellation for closest geometry
+const float MIN_TESS_LEVEL = 1.0;         // Minimum tessellation for distant geometry
+const float NEAR_DISTANCE = 10000000.0;        // Distance for maximum tessellation
+const float FAR_DISTANCE = 40000000.0;        // Distance for minimum tessellation
+const float DETAIL_BIAS = 1.0;            // Detail bias (increase for more detail)
 
 float GetTessLevel(float distance0, float distance1)
 {
-	const float farThreshold = 40000000.0;
-    const float nearThreshold = 10000000.0;
+	float avgDistance = (distance0 + distance1) * 0.5;
+	float tessLevel;
 	
-	float avgDistance = (distance0 + distance1) / 2.0;
-	float lerpFactor;
-    float tessLevel;
-
-    if (avgDistance <= nearThreshold) {
-		lerpFactor = (nearThreshold - avgDistance) / nearThreshold;
-		lerpFactor = clamp(lerpFactor, 0.0, 1.0);
-        tessLevel = mix(4.5, 6.0, lerpFactor);
+    if (avgDistance <= NEAR_DISTANCE) {
+        tessLevel = MAX_TESS_LEVEL;
+    } 
+    else if (avgDistance >= FAR_DISTANCE) {
+        tessLevel = MIN_TESS_LEVEL;
     }
-    else if (avgDistance <= farThreshold) {
-        lerpFactor = (avgDistance - nearThreshold) / (farThreshold - nearThreshold);
-		lerpFactor = clamp(lerpFactor, 0.0, 1.0);
-        tessLevel = mix(4.5, 2.5, lerpFactor);
-    } else {
-        tessLevel = 2.5;
+    else {
+        float t = (avgDistance - NEAR_DISTANCE) / (FAR_DISTANCE - NEAR_DISTANCE);
+        tessLevel = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, t);
     }
-
+    
+	tessLevel *= DETAIL_BIAS;
     return tessLevel;
-}
+}  
 
 void main() {
-	
 	float distanceSquared0 = dot(cameraPosition - IN[0].worldPos, cameraPosition - IN[0].worldPos);
 	float distanceSquared1 = dot(cameraPosition - IN[1].worldPos, cameraPosition - IN[1].worldPos);
 	float distanceSquared2 = dot(cameraPosition - IN[2].worldPos, cameraPosition - IN[2].worldPos);
@@ -63,12 +64,15 @@ void main() {
     gl_TessLevelInner[0] = gl_TessLevelOuter[2];
 
 	OUT[gl_InvocationID].texCoord = IN[gl_InvocationID].texCoord;
-    OUT[gl_InvocationID].colour = IN[gl_InvocationID].colour;
+    //OUT[gl_InvocationID].colour = IN[gl_InvocationID].colour;
 	//OUT[gl_InvocationID].colour = mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (IN[gl_InvocationID].texCoord.x / 10.24) ) 
     //+ mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (IN[gl_InvocationID].texCoord.y / 10.24));
 
-	OUT[gl_InvocationID].colour = gl_TessLevelInner[0] >= 4.5 ? mix(vec4(0.0, 1.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (gl_TessLevelInner[0] - 4.5) / 1.5):
-	mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (gl_TessLevelInner[0] - 2.5) / (4.5 - 2.5));
+	//OUT[gl_InvocationID].colour = gl_TessLevelInner[0] >= 4.5 ? mix(vec4(0.0, 1.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (gl_TessLevelInner[0] - 4.5) / 1.5):
+	//mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (gl_TessLevelInner[0] - 2.5) / (4.5 - 2.5));
+	float normalizedLevel = (gl_TessLevelInner[0] - MIN_TESS_LEVEL) / (MAX_TESS_LEVEL - MIN_TESS_LEVEL);
+    OUT[gl_InvocationID].colour = colourMode ? mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), normalizedLevel) : IN[gl_InvocationID].colour;
+	
     OUT[gl_InvocationID].normal = IN[gl_InvocationID].normal;
     OUT[gl_InvocationID].tangent = IN[gl_InvocationID].tangent;
     OUT[gl_InvocationID].binormal = IN[gl_InvocationID].binormal;

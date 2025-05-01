@@ -30,19 +30,29 @@ void UISystem::StartFrame() {
 }
 
 void UISystem::RenderFrame() {
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 	FramerateUI();
-	
+	DebugUI();
 }
 
 void UISystem::EndFrame() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	//ImGui::EndFrame();
+	ImGui::EndFrame();
 }
 
 void UISystem::FramerateUI() {
-	ImGui::Begin("Framerate");
+	ImGui::Begin("Framerate", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNavInputs);
 	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+	ImGui::End();
+}
+
+void UISystem::DebugUI() {
+	ImGui::SetNextWindowPos(ImVec2(1200, 20), ImGuiCond_Always);
+	ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+	ImGui::SliderFloat("Size", &vertexScale, 1.0f, 15.0f);
+	ImGui::SliderFloat("Height", &heightScale, 0.0f, 5.0f);
+	ImGui::Checkbox("ColourMode", &colourMode);
+	//toggle
 	ImGui::End();
 }

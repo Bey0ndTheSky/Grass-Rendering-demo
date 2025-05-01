@@ -1,11 +1,8 @@
 #pragma once
 #include <windows.h>
 #include "Renderer.h"
-#include <list>
-#include <string>
 
 class UISystem {
-	std::list<int> uiList;
 
 public:
 	static UISystem* GetInstance() { return instance; }
@@ -17,7 +14,9 @@ public:
 	void StartFrame();
 	void EndFrame();
 
-	
+	float getVertexScale() { return vertexScale; }
+	float getheightScale() { return heightScale; }
+	bool getColourMode() { return colourMode; }
 
 protected:
 	UISystem(HWND handle);
@@ -29,4 +28,8 @@ protected:
 
 	static UISystem* instance;
 	HWND handle;
+
+	float vertexScale = 1.0f;
+	float heightScale = 1.0f;
+	bool colourMode = false;
 };

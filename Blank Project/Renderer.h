@@ -66,7 +66,7 @@ protected:
 
     bool postProcess = false;
     int postTex = 0;
-    float lightParam = 0;
+    float lightParam = 0.0f;
     int currentFrame;
     float frameTime;
 

@@ -14,10 +14,11 @@ int main() {
 	}
 
 	UISystem::Initialize(w.GetHandle());
+	w.ShowOSPointer(true);
 	w.LockMouseToWindow(true);
-	//w.ShowOSPointer(false);
 
 	while (w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
+		w.LockMouseToWindow(true);
 		float timestep = w.GetTimer()->GetTimeDeltaSeconds();
 		renderer.UpdateScene(timestep);
 		renderer.RenderScene();

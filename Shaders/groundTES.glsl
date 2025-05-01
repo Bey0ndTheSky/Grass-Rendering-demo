@@ -26,9 +26,7 @@ out Vertex {
 	vec4 shadowProj;
 } OUT;
 
-uniform sampler2D DisplacementMap;
 uniform vec3 hSize;
-uniform float dispFactor;
 
 vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2)
 {
@@ -53,9 +51,6 @@ void main() {
 	OUT.tangent = normalize(interpolate3D(IN[0].tangent, IN[1].tangent, IN[2].tangent));
 	OUT.binormal = normalize(interpolate3D(IN[0].binormal, IN[1].binormal, IN[2].binormal));
 	OUT.worldPos = interpolate3D(IN[0].worldPos, IN[1].worldPos, IN[2].worldPos);
-	
-	float height = texture(DisplacementMap, OUT.texCoord.xy).x;
-    OUT.worldPos.y = height * dispFactor * 255.0;
 		
     gl_Position = projMatrix * viewMatrix * vec4(OUT.worldPos, 1.0);
 }

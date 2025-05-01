@@ -12,11 +12,11 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new Surface(Vector3(10000,20,10000), 50.0f);
+    heightMap = new Surface(Vector3(40, 1.0 ,40), 1.0f);
     camera = new Camera(-12, 225, Vector3());
 
-    Vector3 dimensions = heightMap->GetHeightmapSize();
-    camera->SetPosition(dimensions * Vector3(-0.01, 10, -0.01));
+    Vector3 dimensions = heightMap->GetHeightmapSize() * Vector3(121.0, 9.0, 121.0);
+    camera->SetPosition(dimensions * Vector3(-0.01, 50, -0.01));
 
     for (int i = 0; i < 5; ++i) {
         camera->cameraPath.emplace_back(dimensions*camerapos[i]);
@@ -102,7 +102,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     frameTime = 0.0f;
 
     light = new Light(dimensions * Vector3(0.5f, 150.0f, 0.5f),
-        Vector4(1, 1, 1, 1), dimensions.x * 4.25f);
+        Vector4(1, 1, 1, 1), dimensions.x * 5.25f);
 
     init = true;
 }
@@ -209,11 +209,16 @@ void Renderer::DrawPostProcess() {
 }
 
 void Renderer::changeScene() {
-    light->SetPosition(heightMap->GetHeightmapSize() * Vector3(0.5f, 150.0f, 0.5f));
+    UISystem* ui = UISystem::GetInstance();
+	float vertexScale = ui->getVertexScale() + 10;
+    vertexScale = vertexScale * vertexScale;
+    Vector3 scale = heightMap->GetHeightmapSize() * Vector3(vertexScale, ui->getheightScale(), vertexScale);
+    light->SetPosition(Vector3(0.5f, 150.0f, 0.5f) * scale);
     light->SetColour(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-    light->SetRadius(heightMap->GetHeightmapSize().x * 4.55f);
+    light->SetRadius(scale.x * 4.55f);
     currentFrame = 0;
     frameTime = 0.0f;
+	lightParam = 0.0f;
 }
 
 void Renderer::DrawGround() {
@@ -239,6 +244,10 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
+	UISystem* ui = UISystem::GetInstance();
+    Vector3 scale = Vector3(ui->getVertexScale() + 10, ui->getheightScale(), ui->getVertexScale() + 10);
+    glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);
+    glUniform1i(glGetUniformLocation(shader->GetProgram(), "colourMode"), ui->getColourMode());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 2.0f);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), 25.0f);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), 5.0f);
@@ -252,6 +261,7 @@ void Renderer::DrawGround() {
     
     UpdateShaderMatrices();
     SetShaderLight(*light);
+    heightMap->Draw();
     heightMap->Draw();
 }
 
@@ -296,7 +306,7 @@ void Renderer::DrawShadowScene() {
 
 void Renderer::SetShaders() {
     shaderVec = {
-    new Shader("bumpvertex.glsl", "HeightmapFragment.glsl", "heightmapGeometry.glsl", "groundTCS.glsl", "groundTES.glsl"),
+    new Shader("HeightmapVertex.glsl", "HeightmapFragment.glsl", "", "groundTCS.glsl", "groundTES.glsl"), // "heightmapGeometry.glsl"
     new Shader("skyboxVertex.glsl", "skyboxFragment.glsl"),
     new Shader("TexturedVertex.glsl", "fxaa.glsl"),
     new Shader("TexturedVertex.glsl", "TexturedFragment.glsl"),
