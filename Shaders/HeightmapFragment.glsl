@@ -12,6 +12,7 @@ in Vertex {
 } IN;
 
 out vec4 fragColour;
+uniform vec3 VertexScale = vec3(1.0, 1.0, 1.0);
 uniform vec3 cameraPosition;
 uniform vec4 lightColour;
 uniform vec3 lightPos;
@@ -20,15 +21,18 @@ uniform sampler2D shadowTex;
 
 
 void main(void) {
-	vec3 incident = normalize(lightPos - IN.worldPos);
+	vec3 scaledLightPos = max(VertexScale, vec3(1, 0.1, 1)) * lightPos;
+	float scaledLightRad = VertexScale.x * lightRadius;
+	
+	vec3 incident = normalize(scaledLightPos - IN.worldPos);
     vec3 viewDir = normalize(cameraPosition - IN.worldPos);
     vec3 halfDir = normalize(incident + viewDir);
 
     vec4 diffuse = texture(diffuseTex, IN.texCoord);
 	
 	float lambert = max(dot(incident, IN.normal), 0.0f);
-	float distance = length(lightPos - IN.worldPos);
-	float attenuation = 1.0 - clamp(distance / lightRadius, 0.0, 1.0);
+	float distance = length(scaledLightPos - IN.worldPos);
+	float attenuation = 1.0 - clamp(distance / scaledLightRad, 0.0, 1.0);
 	float specFactor = clamp(dot(halfDir, IN.normal), 0.0, 1.0);
 	specFactor = pow(specFactor, 4.0);
 	
@@ -54,9 +58,9 @@ void main(void) {
 	
     vec3 surface = (groundColour.rgb * lightColour.rgb);
     fragColour.rgb = surface * lambert * attenuation;
-    fragColour.rgb += (lightColour.rgb * specFactor) * attenuation * 0.1;
+    fragColour.rgb += (lightColour.rgb * specFactor) * attenuation * 0.05;
 	fragColour.rgb *= shadow;
-    fragColour.rgb += surface * 0.2;
+    fragColour.rgb += surface * 0.65;
 	
     fragColour.a = diffuse.a;
 }

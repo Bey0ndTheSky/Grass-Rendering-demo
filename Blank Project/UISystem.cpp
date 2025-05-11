@@ -53,6 +53,7 @@ void UISystem::DebugUI() {
 	ImGui::SliderFloat("Size", &vertexScale, 1.0f, 25.0f);
 	ImGui::SliderFloat("Height", &heightScale, 0.0f, 5.0f);
 	ImGui::Checkbox("ColourMode", &colourMode);
+	ImGui::Checkbox("Grass colour mode", &grassColourMode);
 	//toggle
 	ImGui::End();
 }

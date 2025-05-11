@@ -31,6 +31,7 @@ uniform float grassHeight;        // Height of the grass blades
 uniform float bladeWidth;         // Width of each grass blade
 uniform vec4 colourBase;  // First color (e.g., base color of grass)
 uniform vec4 colourTop;  // Second color (e.g., top color of grass)
+uniform bool useGrassColour;
 
 uniform sampler2D windMap;
 uniform float windTraslate;
@@ -75,7 +76,10 @@ void main(void) {
     EndPrimitive();
 	
 	for (int i = 0; i < 3; ++i) { 
-
+		
+		vec4 colourBladeTop = useGrassColour ? colourTop : IN[i].colour;
+		vec4 colourBladeBase = useGrassColour ? colourBase : IN[i].colour;
+	
 		vec3 heightNormal = normalize(IN[i].normal);
 		
 		float randValue = rand(IN[i].worldPos);
@@ -109,7 +113,7 @@ void main(void) {
         vec3 top = IN[i].worldPos + normalize(rotationYMatrix * rotationXMatrix * heightNormal) * height;
 		OUT.texCoord = IN[i].texCoord;
 		
-		vec4 windSample = (texture(windMap, OUT.texCoord / 10.24 + windTraslate) * 2 - 1);
+		vec4 windSample = (texture(windMap, OUT.texCoord / 50.0 + windTraslate) * 2 - 1);
 		vec3 wind = normalize(vec3(windSample.r, 0.0, windSample.g));
 		vec3 rotAxis = normalize(cross(wind, heightNormal));
 		float angle = acos(dot(wind, heightNormal)) * windStrength;
@@ -141,7 +145,7 @@ void main(void) {
 		}
 		
 		gl_Position = toClipSpace(baseRight);
-		OUT.colour = IN[i].colour; //colourBase;
+		OUT.colour = colourBladeBase; //colourBase;
 		EmitVertex();
 		
 		gl_Position = toClipSpace(baseLeft);
@@ -158,7 +162,7 @@ void main(void) {
 			
 			vertLeft = IN[i].worldPos + t * windRotation * (vertLeft - IN[i].worldPos);
 			vertRight = IN[i].worldPos + t * windRotation * (vertRight - IN[i].worldPos);
-			OUT.colour = mix(IN[i].colour, colourTop, t); //mix(colourBase, colourTop, t);  // Interpolating color
+			OUT.colour = mix(colourBladeBase, colourTop, t); //mix(colourBase, colourTop, t);  // Interpolating color
 			
 			// Emit the segment vertex
 			gl_Position = toClipSpace(vertRight);
@@ -169,7 +173,7 @@ void main(void) {
 		}
 		
 		gl_Position = toClipSpace(top);
-		OUT.colour = IN[i].colour; //colourTop;
+		OUT.colour = colourBladeTop; //colourTop;
 		EmitVertex();
 		
 		EndPrimitive();

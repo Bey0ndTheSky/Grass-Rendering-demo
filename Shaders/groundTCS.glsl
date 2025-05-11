@@ -27,7 +27,7 @@ uniform vec3 cameraPosition;
 uniform bool colourMode = false;
 
 // Configurable tessellation parameters
-const float MAX_TESS_LEVEL = 1.0;        // Maximum tessellation for closest geometry
+const float MAX_TESS_LEVEL = 1.5;        // Maximum tessellation for closest geometry
 const float MIN_TESS_LEVEL = 1.0;         // Minimum tessellation for distant geometry
 const float NEAR_DISTANCE = 10000000.0;        // Distance for maximum tessellation
 const float FAR_DISTANCE = 40000000.0;        // Distance for minimum tessellation
@@ -71,7 +71,7 @@ void main() {
 	//OUT[gl_InvocationID].colour = gl_TessLevelInner[0] >= 4.5 ? mix(vec4(0.0, 1.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (gl_TessLevelInner[0] - 4.5) / 1.5):
 	//mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (gl_TessLevelInner[0] - 2.5) / (4.5 - 2.5));
 	float normalizedLevel = (gl_TessLevelInner[0] - MIN_TESS_LEVEL) / (MAX_TESS_LEVEL - MIN_TESS_LEVEL);
-    OUT[gl_InvocationID].colour = colourMode ? mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), normalizedLevel) : IN[gl_InvocationID].colour;
+    OUT[gl_InvocationID].colour = mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), colourMode ? normalizedLevel : 1.0/ 0.0); // undefined but looks good somehow?
 	
     OUT[gl_InvocationID].normal = IN[gl_InvocationID].normal;
     OUT[gl_InvocationID].tangent = IN[gl_InvocationID].tangent;

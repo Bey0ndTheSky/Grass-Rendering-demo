@@ -15,7 +15,7 @@ class Camera;
 enum ShaderIndices{
         GROUND_SHADER,
         SKYBOX_SHADER,
-        POST_PROCESS_SHADER,
+       // POST_PROCESS_SHADER,
         RENDER_SHADER,
         SHADOW_SHADER
 };
@@ -40,7 +40,7 @@ public:
     void TogglePostProcess() { this->postProcess = !this->postProcess; }
 
 protected:
-    Surface* heightMap;
+    HeightMap* heightMap;
     std::vector<Shader*> shaderVec;
     Shader* shader;
    

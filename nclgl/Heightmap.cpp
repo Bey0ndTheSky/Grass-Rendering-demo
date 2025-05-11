@@ -18,15 +18,15 @@ HeightMap::HeightMap(const std::string& name) {
     textureCoords = new Vector2[numVertices];
     indices = new GLuint[numIndices];
 
-    Vector3 vertexScale = Vector3(2.0f, 0.0f, 2.0f);
-    Vector2 textureScale = Vector2(1 / 50.0f, 1.0f / 50.0f);
+    Vector3 vertexScale = Vector3(1.0f, 1.0f, 1.0f);
+    Vector2 textureScale = Vector2(1.0 / 50.0f, 1.0f / 50.0f);
 
     for (int z = 0; z < iHeight; ++z) {
         for (int x = 0; x < iWidth; ++x) {
             int offset = (z * iWidth) + x;
             vertices[offset] = Vector3(x, data[offset], z) * vertexScale;
             textureCoords[offset] = Vector2(x, z) * textureScale;
-            colours[offset] =  Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            colours[offset] =  Vector4(0.0f, 0.0f, 0.0f, 0.0f);
         }
     }
     SOIL_free_image_data(data);
@@ -57,6 +57,8 @@ HeightMap::HeightMap(const std::string& name) {
     heightmapSize.x = vertexScale.x * (iWidth - 1);
     heightmapSize.y = vertexScale.y * 255.0f; // each height is a byte!
     heightmapSize.z = vertexScale.z * (iHeight - 1);
+
+    SetPrimitiveType(GL_PATCHES);
 }
 
 HeightMap::~HeightMap() {

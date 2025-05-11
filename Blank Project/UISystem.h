@@ -17,6 +17,7 @@ public:
 	float getVertexScale() { return vertexScale; }
 	float getheightScale() { return heightScale; }
 	bool getColourMode() { return colourMode; }
+	bool getGrassColour() { return grassColourMode; }
 
 protected:
 	UISystem(HWND handle);
@@ -30,6 +31,7 @@ protected:
 	HWND handle;
 
 	float vertexScale = 1.0f;
-	float heightScale = 1.0f;
+	float heightScale = 0.0f;
 	bool colourMode = false;
+	bool grassColourMode = true;
 };
