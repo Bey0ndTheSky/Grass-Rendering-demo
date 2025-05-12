@@ -38,10 +38,10 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
         int patchHeight = j / numPatches;
 
         int startX = (iWidth / numPatches) * patchWidth;
-        int endX = (patchWidth == numPatches - 1) ? iWidth - 1 : (patchWidth + 1) * (iWidth / numPatches) - 1;
+        int endX = (patchWidth == numPatches - 1) ? iWidth - 1 : (patchWidth + 1) * (iWidth / numPatches);
 
         int startZ = (iHeight / numPatches) * patchHeight;
-        int endZ = (patchHeight == numPatches - 1) ? iHeight - 1 : (patchHeight + 1) * (iHeight / numPatches) - 1;
+        int endZ = (patchHeight == numPatches - 1) ? iHeight - 1 : (patchHeight + 1) * (iHeight / numPatches);
 
         for (int z = startZ; z < endZ; ++z) {
             for (int x = startX; x < endX; ++x) {
