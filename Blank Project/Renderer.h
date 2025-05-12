@@ -14,6 +14,7 @@ class Camera;
 
 enum ShaderIndices{
         GROUND_SHADER,
+        GRASS_SHADER,
         SKYBOX_SHADER,
        // POST_PROCESS_SHADER,
         RENDER_SHADER,

@@ -223,6 +223,31 @@ void Renderer::DrawGround() {
 
     shader = shaderVec[GROUND_SHADER];
     BindShader(shader);
+
+    UISystem* ui = UISystem::GetInstance();
+    Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
+    modelMatrix = Matrix4::Scale(scale) * modelMatrix;
+
+    glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);
+
+    glUniform1i(glGetUniformLocation(shader->GetProgram(), "diffuseTex"), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, terrainTex);
+    
+    glUniform1i(glGetUniformLocation(shader->GetProgram(), "shadowTex"), 4);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, shadowTex);
+
+    
+
+    UpdateShaderMatrices();
+    SetShaderLight(*light);
+
+	heightMap->SetPrimitiveType(GL_TRIANGLES);
+    heightMap->Draw();
+
+    shader = shaderVec[GRASS_SHADER];
+    BindShader(shader);
         
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "diffuseTex"), 0);
     glActiveTexture(GL_TEXTURE0);
@@ -240,9 +265,7 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
-	UISystem* ui = UISystem::GetInstance();
-    Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
-    modelMatrix = Matrix4::Scale(scale) * modelMatrix;
+	
     //textureMatrix = Matrix4::Scale(Vector3(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z)) * textureMatrix;
 
 
@@ -263,6 +286,7 @@ void Renderer::DrawGround() {
     UpdateShaderMatrices();
     SetShaderLight(*light);
     //heightMap->Draw(); DRAW THE ENTIRE THING
+    heightMap->SetPrimitiveType(GL_PATCHES);
 
     for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) {
 		bool cull = true;
@@ -271,7 +295,7 @@ void Renderer::DrawGround() {
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
 
-		if (!cull) heightMap->DrawSubMesh(i);
+		//if (!cull) heightMap->DrawSubMesh(i);
 	}
     
     modelMatrix.ToIdentity();
@@ -319,6 +343,7 @@ void Renderer::DrawShadowScene() {
 
 void Renderer::SetShaders() {
     shaderVec = {
+    new Shader("HeightmapVertex.glsl", "HeightmapFragment.glsl"),
     new Shader("HeightmapVertex.glsl", "HeightmapFragment.glsl", "heightmapGeometry.glsl" , "groundTCS.glsl", "groundTES.glsl"), // "heightmapGeometry.glsl"
     new Shader("skyboxVertex.glsl", "skyboxFragment.glsl"),
     //new Shader("TexturedVertex.glsl", "fxaa.glsl"),

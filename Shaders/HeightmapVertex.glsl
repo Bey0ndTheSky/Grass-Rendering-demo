@@ -9,7 +9,6 @@ uniform vec3 lightPos;
 uniform float lightRadius;
 
 uniform vec3 VertexScale = vec3(1.0, 1.0, 1.0);
-uniform sampler2D DisplacementMap;
 
 in vec3 position; 
 in vec2 texCoord; 
