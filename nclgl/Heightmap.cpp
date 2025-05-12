@@ -21,17 +21,29 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
     Vector3 vertexScale = Vector3(1.0f, 1.0f, 1.0f);
     Vector2 textureScale = Vector2(1.0 / 50.0f, 1.0f / 50.0f);
 
-    for (int z = 0; z < iHeight; ++z) {
-        for (int x = 0; x < iWidth; ++x) {
-            int offset = (z * iWidth) + x;
-            vertices[offset] = Vector3(x, data[offset], z) * vertexScale;
-            textureCoords[offset] = Vector2(x, z) * textureScale;
-            colours[offset] =  Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+    for (int j = 0; j < numPatches * numPatches; j++) {
+        int patchWidth = j % numPatches;
+        int patchHeight = j / numPatches;
+
+        int startX = (iWidth / numPatches) * patchWidth;
+        int endX = (patchWidth == numPatches - 1) ? iWidth : (patchWidth + 1) * (iWidth / numPatches);
+
+        int startZ = (iHeight / numPatches) * patchHeight;
+        int endZ = (patchHeight == numPatches - 1) ? iHeight : (patchHeight + 1) * (iHeight / numPatches);
+
+        for (int z = startZ; z < endZ; ++z) {
+            for (int x = startX; x < endX; ++x) {
+                int offset = (z * iWidth) + x;
+                vertices[offset] = Vector3(x, data[offset], z) * vertexScale;
+                textureCoords[offset] = Vector2(x, z) * textureScale;
+                colours[offset] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            }
         }
     }
     SOIL_free_image_data(data);
 
     int i = 0;
+
 
 	for (int j = 0; j < numPatches * numPatches; j++) {
         int patchWidth = j % numPatches;
@@ -42,6 +54,9 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
 
         int startZ = (iHeight / numPatches) * patchHeight;
         int endZ = (patchHeight == numPatches - 1) ? iHeight - 1 : (patchHeight + 1) * (iHeight / numPatches);
+
+        SubMesh sm;
+		sm.start = i;
 
         for (int z = startZ; z < endZ; ++z) {
             for (int x = startX; x < endX; ++x) {
@@ -59,10 +74,13 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
                 indices[i++] = d;
             }
         }
+        
+        sm.count = i - sm.start;
+		meshLayers.push_back(sm);
 	}
 
-    //GenerateNormals();
-    //GenerateTangents();
+    GenerateNormals();
+    GenerateTangents();
     BufferData();
 
     heightmapSize.x = vertexScale.x * (iWidth - 1);

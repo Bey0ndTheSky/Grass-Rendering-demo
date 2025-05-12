@@ -262,7 +262,9 @@ void Renderer::DrawGround() {
     
     UpdateShaderMatrices();
     SetShaderLight(*light);
-    heightMap->Draw();
+    //heightMap->Draw();
+
+    for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) heightMap->DrawSubMesh(i);
 
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
