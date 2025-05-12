@@ -70,8 +70,6 @@ protected:
     int currentFrame;
     float frameTime;
 
-    float waterRotate;
-    float waterCycle;
     float gravity;
     const int PARTICLE_NUM = 2000;
 

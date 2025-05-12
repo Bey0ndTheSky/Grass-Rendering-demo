@@ -366,3 +366,5 @@ FodyWeavers.xsd
 *.vcxproj
 *.filters
 *.vcxproj
+Shaders/draw_shader.tes
+Shaders/draw_shader.tcs

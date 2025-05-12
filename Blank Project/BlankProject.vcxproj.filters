@@ -12,6 +12,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{11db26ee-0300-43f6-8b9a-5a135ab67d04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{3da69d3e-244d-444f-b423-57e739a2d4fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renderer.cpp">
@@ -95,6 +98,21 @@
   <ItemGroup>
     <None Include="..\imgui\imgui.natstepfilter">
       <Filter>imgui</Filter>
+    </None>
+    <None Include="..\Shaders\groundTCS.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\groundTES.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\HeightmapFragment.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\heightmapGeometry.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\HeightmapVertex.glsl">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -167,6 +167,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\imgui\imgui.natstepfilter" />
+    <None Include="..\Shaders\groundTCS.glsl" />
+    <None Include="..\Shaders\groundTES.glsl" />
+    <None Include="..\Shaders\HeightmapFragment.glsl" />
+    <None Include="..\Shaders\heightmapGeometry.glsl" />
+    <None Include="..\Shaders\HeightmapVertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\imgui\imgui.natvis" />

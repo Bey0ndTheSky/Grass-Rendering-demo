@@ -6,7 +6,7 @@ class Frustum;
 
 class HeightMap : public Mesh {
 public:
-    HeightMap(const std::string& name);
+    HeightMap(const std::string& name, int numPatches);
     ~HeightMap();
 
     Vector3 GetHeightmapSize() const { return heightmapSize; }

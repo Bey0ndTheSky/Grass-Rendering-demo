@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
-HeightMap::HeightMap(const std::string& name) {
+HeightMap::HeightMap(const std::string& name, int numPatches) {
     int iWidth, iHeight, iChans;
     unsigned char* data = SOIL_load_image(name.c_str(), &iWidth, &iHeight, &iChans, 1);
 
@@ -33,25 +33,36 @@ HeightMap::HeightMap(const std::string& name) {
 
     int i = 0;
 
-    for (int z = 0; z < iHeight - 1; ++z) {
-        for (int x = 0; x < iWidth - 1; ++x) {
-            int a = (z * iWidth) + x;
-            int b = (z * iWidth) + (x + 1);
-            int c = ((z + 1) * iWidth) + (x + 1);
-            int d = ((z + 1) * iWidth) + x;
+	for (int j = 0; j < numPatches * numPatches; j++) {
+        int patchWidth = j % numPatches;
+        int patchHeight = j / numPatches;
 
-            indices[i++] = a;
-            indices[i++] = c;
-            indices[i++] = b;
+        int startX = (iWidth / numPatches) * patchWidth;
+        int endX = (patchWidth == numPatches - 1) ? iWidth - 1 : (patchWidth + 1) * (iWidth / numPatches) - 1;
 
-            indices[i++] = c;
-            indices[i++] = a;
-            indices[i++] = d;
+        int startZ = (iHeight / numPatches) * patchHeight;
+        int endZ = (patchHeight == numPatches - 1) ? iHeight - 1 : (patchHeight + 1) * (iHeight / numPatches) - 1;
+
+        for (int z = startZ; z < endZ; ++z) {
+            for (int x = startX; x < endX; ++x) {
+                int a = (z * iWidth) + x;
+                int b = (z * iWidth) + (x + 1);
+                int c = ((z + 1) * iWidth) + (x + 1);
+                int d = ((z + 1) * iWidth) + x;
+
+                indices[i++] = a;
+                indices[i++] = c;
+                indices[i++] = b;
+
+                indices[i++] = c;
+                indices[i++] = a;
+                indices[i++] = d;
+            }
         }
-    }
+	}
 
-    GenerateNormals();
-    GenerateTangents();
+    //GenerateNormals();
+    //GenerateTangents();
     BufferData();
 
     heightmapSize.x = vertexScale.x * (iWidth - 1);

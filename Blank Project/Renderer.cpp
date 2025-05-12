@@ -12,7 +12,7 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png");
+    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 4);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize(); // *Vector3(121.0, 9.0, 121.0);
@@ -93,8 +93,6 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-    waterRotate = 0.0f;
-    waterCycle = 0.0f;
     windTranslate = 0.0f;
     windStrength = 0.5f;
 
@@ -134,8 +132,6 @@ void Renderer::UpdateScene(float dt) {
         45.0f);
 
     frameTime -= dt;
-    waterRotate += dt * 0.1f;
-    waterCycle += dt * 0.05f;
     gravity = gravity > 0.981f ? gravity - 0.981f : gravity;
     gravity += dt;
 
