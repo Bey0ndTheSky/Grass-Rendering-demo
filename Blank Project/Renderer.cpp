@@ -12,7 +12,7 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 4);
+    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 32);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize(); // *Vector3(121.0, 9.0, 121.0);
@@ -262,10 +262,18 @@ void Renderer::DrawGround() {
     
     UpdateShaderMatrices();
     SetShaderLight(*light);
-    //heightMap->Draw();
+    //heightMap->Draw(); DRAW THE ENTIRE THING
 
-    for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) heightMap->DrawSubMesh(i);
+    for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) {
+		bool cull = true;
+        for (int j = 0; j < 4; ++j) {
+			Vector3 scaledPoint = heightMap->GetPatch(i).points[j] * scale;
+			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
+		}
 
+		if (!cull) heightMap->DrawSubMesh(i);
+	}
+    
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
 }

@@ -31,6 +31,14 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
         int startZ = (iHeight / numPatches) * patchHeight;
         int endZ = (patchHeight == numPatches - 1) ? iHeight : (patchHeight + 1) * (iHeight / numPatches);
 
+		Patch p;
+		p.points[0] = Vector3(startX, data[startZ * iWidth + startX], startZ);
+        p.points[1] = Vector3(endX - 1, data[startZ * iWidth + (endX - 1)], startZ);
+        p.points[2] = Vector3(startX, data[(endZ - 1) * iWidth + startX], endZ - 1);
+        p.points[3] = Vector3(endX - 1, data[(endZ - 1) * iWidth + (endX - 1)], endZ - 1);
+
+		patches.push_back(p);
+
         for (int z = startZ; z < endZ; ++z) {
             for (int x = startX; x < endX; ++x) {
                 int offset = (z * iWidth) + x;

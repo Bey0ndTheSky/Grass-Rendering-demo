@@ -11,9 +11,9 @@ bool Frustum::InsideFrustum(SceneNode& n) {
     return true; // SceneNode is inside every plane...
 }
 
-bool Frustum::InsideFrustum(Vector3& v) {
+bool Frustum::InsideFrustum(Vector3& v, float scale) {
     for (int p = 0; p < 6; ++p) {
-        if (!planes[p].SphereInPlane(v, 0.01f)) {
+        if (!planes[p].SphereInPlane(v, 5.0f * scale)) {
             return false; 
         }
     }
