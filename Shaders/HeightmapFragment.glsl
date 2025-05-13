@@ -22,7 +22,7 @@ uniform sampler2D shadowTex;
 
 void main(void) {
 	vec3 scaledLightPos = max(VertexScale, vec3(1, 0.1, 1)) * lightPos;
-	float scaledLightRad = VertexScale.x * lightRadius;
+	float scaledLightRad = VertexScale.x * lightRadius * 0.75;
 	
 	vec3 incident = normalize(scaledLightPos - IN.worldPos);
     vec3 viewDir = normalize(cameraPosition - IN.worldPos);

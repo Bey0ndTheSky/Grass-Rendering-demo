@@ -22,6 +22,7 @@ out Vertex {
 	vec4 shadowProj;
 } OUT[];
 
+uniform vec3 VertexScale;
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition;
 uniform bool colourMode = false;
@@ -29,9 +30,8 @@ uniform bool colourMode = false;
 // Configurable tessellation parameters
 const float MAX_TESS_LEVEL = 3.0;        // Maximum tessellation for closest geometry
 const float MIN_TESS_LEVEL = 1.5;         // Minimum tessellation for distant geometry
-const float NEAR_DISTANCE = 7500.0;        // Distance for maximum tessellation
-const float FAR_DISTANCE = 20000000.0;        // Distance for minimum tessellation
-const float DETAIL_BIAS = 1.0;            // Detail bias (increase for more detail)
+const float NEAR_DISTANCE = 1000.0;        // Distance for maximum tessellation
+const float FAR_DISTANCE = 30000000.0;        // Distance for minimum tessellation
 
 float GetTessLevel(float distance0, float distance1)
 {
@@ -49,7 +49,7 @@ float GetTessLevel(float distance0, float distance1)
         tessLevel = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, t);
     }
     
-	tessLevel *= DETAIL_BIAS;
+	tessLevel *= VertexScale.x * 0.04;
     return tessLevel;
 }  
 
@@ -65,11 +65,7 @@ void main() {
 
 	OUT[gl_InvocationID].texCoord = IN[gl_InvocationID].texCoord;
     //OUT[gl_InvocationID].colour = IN[gl_InvocationID].colour;
-	//OUT[gl_InvocationID].colour = mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (IN[gl_InvocationID].texCoord.x / 10.24) ) 
-    //+ mix(vec4(0.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (IN[gl_InvocationID].texCoord.y / 10.24));
 
-	//OUT[gl_InvocationID].colour = gl_TessLevelInner[0] >= 4.5 ? mix(vec4(0.0, 1.0, 0.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), (gl_TessLevelInner[0] - 4.5) / 1.5):
-	//mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), (gl_TessLevelInner[0] - 2.5) / (4.5 - 2.5));
 	float normalizedLevel = (gl_TessLevelInner[0] - MIN_TESS_LEVEL) / (MAX_TESS_LEVEL - MIN_TESS_LEVEL);
     OUT[gl_InvocationID].colour = mix(vec4(0.0, 0.0, 1.0, 1.0), vec4(1.0, 0.0, 0.0, 1.0), colourMode ? normalizedLevel : 1.0/ 0.0); // undefined but looks good somehow?
 	

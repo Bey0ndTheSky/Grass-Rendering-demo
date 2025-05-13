@@ -27,10 +27,10 @@ uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 uniform vec3 cameraPosition;
 
-uniform float grassHeight;        // Height of the grass blades
-uniform float bladeWidth;         // Width of each grass blade
-uniform vec4 colourBase;  // First color (e.g., base color of grass)
-uniform vec4 colourTop;  // Second color (e.g., top color of grass)
+uniform float grassHeight;        
+uniform float bladeWidth;         
+uniform vec4 colourBase;  
+uniform vec4 colourTop; 
 uniform bool useGrassColour;
 
 uniform sampler2D windMap;

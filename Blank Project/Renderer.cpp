@@ -12,7 +12,7 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 32);
+    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 64);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize(); // *Vector3(121.0, 9.0, 121.0);
@@ -205,11 +205,8 @@ void Renderer::DrawPostProcess() {
 }
 
 void Renderer::changeScene() {
-    UISystem* ui = UISystem::GetInstance();
-	float vertexScale = ui->getVertexScale() + 10;
-    vertexScale = vertexScale * vertexScale;
-    Vector3 scale = heightMap->GetHeightmapSize() * Vector3(vertexScale, ui->getheightScale(), vertexScale);
-    light->SetPosition(Vector3(0.5f, 150.0f, 0.5f) * scale);
+    Vector3 scale = heightMap->GetHeightmapSize();
+    light->SetPosition(Vector3(0.5f, 30.0f, 0.5f) * scale);
     light->SetColour(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
     light->SetRadius(scale.x * 4.55f);
     currentFrame = 0;
