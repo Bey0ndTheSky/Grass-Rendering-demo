@@ -235,7 +235,6 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
-    
 
     UpdateShaderMatrices();
     SetShaderLight(*light);
@@ -292,7 +291,7 @@ void Renderer::DrawGround() {
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
 
-		//if (!cull) heightMap->DrawSubMesh(i);
+		if (!cull) heightMap->DrawSubMesh(i);
 	}
     
     modelMatrix.ToIdentity();
