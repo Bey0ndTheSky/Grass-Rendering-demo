@@ -22,6 +22,7 @@ out Vertex {
 	vec4 shadowProj;
 } OUT[];
 
+uniform vec3 VertexScale;
 uniform mat4 viewMatrix;
 uniform vec3 cameraPosition;
 uniform bool colourMode = false;
@@ -31,7 +32,6 @@ const float MAX_TESS_LEVEL = 3.0;        // Maximum tessellation for closest geo
 const float MIN_TESS_LEVEL = 1.5;         // Minimum tessellation for distant geometry
 const float NEAR_DISTANCE = 7500.0;        // Distance for maximum tessellation
 const float FAR_DISTANCE = 20000000.0;        // Distance for minimum tessellation
-const float DETAIL_BIAS = 1.0;            // Detail bias (increase for more detail)
 
 float GetTessLevel(float distance0, float distance1)
 {
@@ -49,7 +49,7 @@ float GetTessLevel(float distance0, float distance1)
         tessLevel = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, t);
     }
     
-	tessLevel *= DETAIL_BIAS;
+	tessLevel *= VertexScale.x * 0.05;
     return tessLevel;
 }  
 
