@@ -27,10 +27,10 @@ uniform vec3 cameraPosition;
 uniform bool colourMode = false;
 
 // Configurable tessellation parameters
-const float MAX_TESS_LEVEL = 1.5;        // Maximum tessellation for closest geometry
-const float MIN_TESS_LEVEL = 1.0;         // Minimum tessellation for distant geometry
-const float NEAR_DISTANCE = 10000000.0;        // Distance for maximum tessellation
-const float FAR_DISTANCE = 40000000.0;        // Distance for minimum tessellation
+const float MAX_TESS_LEVEL = 3.0;        // Maximum tessellation for closest geometry
+const float MIN_TESS_LEVEL = 1.5;         // Minimum tessellation for distant geometry
+const float NEAR_DISTANCE = 7500.0;        // Distance for maximum tessellation
+const float FAR_DISTANCE = 20000000.0;        // Distance for minimum tessellation
 const float DETAIL_BIAS = 1.0;            // Detail bias (increase for more detail)
 
 float GetTessLevel(float distance0, float distance1)
