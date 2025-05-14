@@ -135,15 +135,22 @@ void Renderer::UpdateScene(float dt) {
     gravity = gravity > 0.981f ? gravity - 0.981f : gravity;
     gravity += dt;
 
+    UISystem* ui = UISystem::GetInstance();
+
     windTranslate += dt * (0.015f + cos(dt * 0.01f) * 0.01f);
-    windStrength = 0.3f * sin(dt * 0.05f) * 0.29;
+    windStrength = ui->getWindStrength() + sin(dt * 0.05f) * 0.29;
 
     frameFrustum.FromMatrix(projMatrix * viewMatrix);
 
     lightParam += dt * 0.005f;
-    light->SetPosition(light->GetPosition() + Vector3(1, 5, 0) * dt * 0.005f * heightMap->GetHeightmapSize().x);
-    light->SetColour(lerp(Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector4(1.0f, 0.5f, 0.0f, 1.0f), lightParam));
-   
+
+	Vector3 dimensions = heightMap->GetHeightmapSize();
+    
+    light->SetPosition((Vector3(0.2f, 20.0f, 0.5f) * dimensions + Vector3(0, dimensions.x, 0) * ui->getLightPosition()));
+    //light->SetPosition((light->GetPosition() + Vector3(1, 5, 0) * dt * 0.005f * heightMap->GetHeightmapSize().x) + Vector3(0, heightMap->GetHeightmapSize().x, 0) * ui->getLightPosition());
+    light->SetColour(lerp(ui->getLightColour(), Vector4(1.0f, 0.5f, 0.0f, 1.0f), lightParam));
+	light->SetRadius(ui->getLightRadius() * 4.25f * dimensions.x);
+
     postTex = 0;
 }
 
@@ -247,8 +254,8 @@ void Renderer::DrawGround() {
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "colourMode"), ui->getColourMode());
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "useGrassColour"), ui->getGrassColour());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 2.0f);
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), 25.0f);
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), 5.0f);
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), ui->getGrassHeight());
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), ui->getGrassWidth());
 
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windTraslate"), windTranslate);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windStrength"), windStrength);
