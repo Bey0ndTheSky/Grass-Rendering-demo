@@ -23,8 +23,16 @@ public:
     void FollowPath(float dt = 1.0f);
     Matrix4 BuildViewMatrix();
 
+	const bool CompareByCameraDistance(const Vector3& a, const Vector3& b) {
+		return getDistanceFromCamera(a) < getDistanceFromCamera(b);
+	}
+	const float getDistanceFromCamera(const Vector3& p) {
+		return (p - position).Length();
+	}
+
     Vector3 GetPosition() const { return position; }
     void SetPosition(Vector3 val) { position = val; }
+
 
     float GetYaw() const { return yaw; }
     void SetYaw(float y) { yaw = y; }

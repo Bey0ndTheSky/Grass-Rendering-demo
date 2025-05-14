@@ -105,8 +105,8 @@ void main(void) {
 	float width = mix(bladeWidth * 0.5, bladeWidth * 2, rand(IN[i].worldPos.xzy));
 	float height = mix(grassHeight * 0.5, grassHeight * 2, rand(IN[i].worldPos.zxy));
 	
-	vec3 baseLeft = IN[i].worldPos - randomTangent * (width / 2.0);  // Left side of the blade
-	vec3 baseRight = IN[i].worldPos + randomTangent * (width / 2.0);  // Right side of the blade
+	vec3 baseLeft = IN[i].worldPos - randomTangent * (width / 2.0); 
+	vec3 baseRight = IN[i].worldPos + randomTangent * (width / 2.0);
 	
 	// Calculate the top positions of the grass blade (using the normal to lift it)
 	vec3 top = IN[i].worldPos + normalize(rotationYMatrix * rotationXMatrix * heightNormal) * height;

@@ -36,7 +36,8 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
         p.points[1] = Vector3(endX - 1, data[startZ * iWidth + (endX - 1)], startZ);
         p.points[2] = Vector3(startX, data[(endZ - 1) * iWidth + startX], endZ - 1);
         p.points[3] = Vector3(endX - 1, data[(endZ - 1) * iWidth + (endX - 1)], endZ - 1);
-
+		p.index = j;
+		p.CalcCentre();
 		patches.push_back(p);
 
         for (int z = startZ; z < endZ; ++z) {

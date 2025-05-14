@@ -12,7 +12,7 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 64);
+    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 20);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize(); // *Vector3(121.0, 9.0, 121.0);
@@ -261,16 +261,26 @@ void Renderer::DrawGround() {
     SetShaderLight(*light);
     //heightMap->Draw(); DRAW THE ENTIRE THING
 
+	vector<Patch> patches = heightMap->GetPatches();
+    std::sort(patches.begin(), patches.end(),
+        [&](const Patch& a, const Patch& b) {
+            return camera->CompareByCameraDistance(a.points[4], b.points[4]);
+        });
+
     for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) {
 		bool cull = true;
+		Patch patch = patches[i];
+
         for (int j = 0; j < 4; ++j) {
-			Vector3 scaledPoint = heightMap->GetPatch(i).points[j] * scale;
+			Vector3 scaledPoint = patch.points[j] * scale;
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
 
-		if (!cull) heightMap->DrawSubMesh(i);
+        if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
 	}
+
     
+
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
 }
