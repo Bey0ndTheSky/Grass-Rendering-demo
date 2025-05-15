@@ -286,8 +286,6 @@ void Renderer::DrawGround() {
         if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
 	}
 
-    
-
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
 }

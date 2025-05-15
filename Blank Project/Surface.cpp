@@ -8,33 +8,11 @@ Surface::Surface(const std::string& name, int numPatches) : Mesh() {
         std::cout << "Heightmap can't load file!\n";
         return;
     }
-
-    numVertices = iWidth * iHeight;
-    numIndices = (iWidth - 1) * (iHeight - 1) * 6;
-    vertices = new Vector3[numVertices];
-    colours = new Vector4[numVertices];
-    textureCoords = new Vector2[numVertices];
-    indices = new GLuint[numIndices];
-
-    Vector3 vertexScale = Vector3(1.0f, 1.0f, 1.0f);
-    Vector2 textureScale = Vector2(1.0 / 50.0f, 1.0f / 50.0f);
-
-    for (int z = 0; z < iHeight; ++z) {
-        for (int x = 0; x < iWidth; ++x) {
-            int offset = (z * iWidth) + x;
-
-            vertices[offset] = Vector3(x , data[offset], z) * vertexScale;
-            textureCoords[offset] = Vector2(x, z) * textureScale;
-            colours[offset] = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-        }
-    }
-
-    // Calculate number of vertices in each dimension
+    
     float patchSizeX = size.x / numPatches;
     float patchSizeZ = size.z / numPatches;
 
-    // Total vertices for the entire grid
-    int gridWidth = numPatches + 1; // One more vertex than patches
+    int gridWidth = numPatches + 1;
     numVertices = gridWidth * gridWidth;
     numIndices = numPatches * numPatches * 6; // 6 indices per quad
 
@@ -43,6 +21,9 @@ Surface::Surface(const std::string& name, int numPatches) : Mesh() {
     textureCoords = new Vector2[numVertices];
     indices = new GLuint[numIndices];
 
+    Vector3 vertexScale = Vector3(50.0f, 1.0f, 50.0f);
+    Vector2 textureScale = Vector2(1.0 / 50.0f, 1.0f / 50.0f);
+
     for (int z = 0; z < gridWidth; ++z) {
         for (int x = 0; x < gridWidth; ++x) {
             int offset = (z * gridWidth) + x;
@@ -50,7 +31,7 @@ Surface::Surface(const std::string& name, int numPatches) : Mesh() {
             float xPos = (x * patchSizeX);
             float zPos = (z * patchSizeZ);
 
-            vertices[offset] = Vector3(xPos, 0.0f, zPos);
+            vertices[offset] = Vector3(xPos, data[offset], zPos);
             textureCoords[offset] = Vector2(x, z) * textureScale;
             colours[offset] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
         }
@@ -75,10 +56,10 @@ Surface::Surface(const std::string& name, int numPatches) : Mesh() {
 
     
     int i = 0;
-    SubMesh sm;
+    
     for (int z = 0; z < numPatches; ++z) {
         for (int x = 0; x < numPatches; ++x) {
-            
+            SubMesh sm;
             sm.start = i;
 
             int a = (z * gridWidth) + x;           

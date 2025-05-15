@@ -11,7 +11,7 @@ public:
     ~Surface();
 
 	Vector3 GetHeightmapSize() const { return size; }
-    Patch GetPatch(int i) const { return patches[i]; }
+    vector<Patch> GetPatches() const { return patches; }
 
 protected:
     Vector3 size;
