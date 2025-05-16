@@ -19,7 +19,7 @@ HeightMap::HeightMap(const std::string& name, int numPatches) {
     indices = new GLuint[numIndices];
 
     Vector3 vertexScale = Vector3(1.0f, 1.0f, 1.0f);
-    Vector2 textureScale = Vector2(1.0 / 50.0f, 1.0f / 50.0f);
+    Vector2 textureScale = Vector2(1.0 / 20.0f, 1.0f / 20.0f);
 
     for (int j = 0; j < numPatches * numPatches; j++) {
         int patchWidth = j % numPatches;

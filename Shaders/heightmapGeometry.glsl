@@ -37,7 +37,8 @@ uniform sampler2D windMap;
 uniform float windTraslate;
 uniform float windStrength;
 
-const int numSegments = 3;
+const int numSegments = 4;
+const float leaningFactor= 0.3;
 	
 vec4 toClipSpace(vec3 coord){
 	return projMatrix * viewMatrix * vec4(coord, 1.0);
@@ -46,7 +47,44 @@ vec4 toClipSpace(vec3 coord){
 float rand(vec3 vec){
 	return fract(sin(dot(vec, vec3(12.9898, 78.233, 54.53))) * 43758.5453);
  }
+ 
+vec3 bezier(vec3 p0, vec3 p1, vec3 p2, float t){
+    vec3 a = mix(p0, p1, t);
+    vec3 b = mix(p1, p2, t);
+    return mix(a, b, t);
+}
+
+vec3 bezierDerivative(vec3 p0, vec3 p1, vec3 p2, float t){
+    return 2. * (1. - t) * (p1 - p0) + 2. * t * (p2 - p1);
+}
+
+// Jahrmann & Wimmer, "Responsive real-time grass rendering," I3D '17, 2017.
+void MakePersistentLength(in vec3 v0, inout vec3 v1, inout vec3 v2, in float height)
+{
+    //Persistent length
+    vec3 v01 = v1 - v0;
+    vec3 v12 = v2 - v1;
+    float lv01 = length(v01);
+    float lv12 = length(v12);
+
+    float L1 = lv01 + lv12;
+    float L0 = length(v2-v0);
+    float L = (2.0f * L0 + L1) / 3.0f; //http://steve.hollasch.net/cgindex/curves/cbezarclen.html
+
+    float ldiff = height / L;
+    v01 = v01 * ldiff;
+    v12 = v12 * ldiff;
+    v1 = v0 + v01;
+    v2 = v1 + v12;
+}
+
+void EnsureValidV2Pos(inout vec3 v2, in vec3 bladeUp, in vec3 groundPos)
+{
+    v2 += bladeUp * -min(dot(bladeUp, groundPos),0.0f);
+}
+
 void main(void) {
+	// Draw ground
 	gl_Position = gl_in[0].gl_Position;
     OUT.texCoord = IN[0].texCoord;
     OUT.colour = IN[0].colour;
@@ -74,65 +112,41 @@ void main(void) {
     OUT.worldPos = IN[2].worldPos;
     EmitVertex();
     EndPrimitive();
+	// Draw ground OVER
 	
+	// Get random angle + colour
 	int i = 0;
+	float randValue = rand(IN[i].worldPos);
+	int i = (randValue * 3) % 3;
 	vec4 colourBladeTop = useGrassColour ? colourTop : IN[i].colour;
 	vec4 colourBladeBase = useGrassColour ? colourBase : IN[i].colour;
-
-	vec3 heightNormal = normalize(IN[i].normal);
 	
-	float randValue = rand(IN[i].worldPos);
+	vec3 heightNormal = IN[i].normal;
 	float randomAngle = randValue * 2.0 * 3.14159;
-	float c = cos(randomAngle);
-	float s = sin(randomAngle);
+	vec3 bladeDir = vec3(cos(randomAngle), 0.0, sin(randomAngle)); //vec3(-0.1, 0.0, 0.0)
+	float height = grassHeight + randValue * 2.0;
+	float width = bladeWidth + randValue * 2.0;
 
-	mat3 rotationYMatrix = mat3(
-		c, 0.0, s,
-		0.0, 1.0, 0.0,
-		-s, 0.0, c
-	);
+	// Random angle OVER
 	
-	randomAngle = randValue * 0.25 * 3.14159;
-	c = cos(randomAngle);
-	s = sin(randomAngle);
-	mat3 rotationXMatrix = mat3(
-		1.0, 0.0, 0.0,
-		0.0, c, -s,
-		0.0, s, c
-	);
-	vec3 randomTangent = normalize(rotationYMatrix * rotationXMatrix * IN[i].tangent);
+	// BEZIER CALC
+	vec3 p0 = IN[i].worldPos;
+	vec3 p1 = p0 + vec3(0, height, 0);
+	vec3 p2 = p1 + bladeDir * height * leaningFactor;
 	
-	float width = mix(bladeWidth * 0.5, bladeWidth * 2, rand(IN[i].worldPos.xzy));
-	float height = mix(grassHeight * 0.5, grassHeight * 2, rand(IN[i].worldPos.zxy));
+	vec3 sideVec = normalize(vec3(bladeDir.y, -bladeDir.x, 0)); 
+	vec3 tangent = normalize(cross(vec3(0,1,0), IN[i].normal));
+    vec3 bitangent = normalize(cross(IN[i].normal, tangent));
+	// BEZIER CALC OVER
 	
-	vec3 baseLeft = IN[i].worldPos - randomTangent * (width / 2.0); 
-	vec3 baseRight = IN[i].worldPos + randomTangent * (width / 2.0);
-	
-	// Calculate the top positions of the grass blade (using the normal to lift it)
-	vec3 top = IN[i].worldPos + normalize(rotationYMatrix * rotationXMatrix * heightNormal) * height;
-	OUT.texCoord = IN[i].texCoord;
-	
+	// Wind calculations
 	vec4 windSample = (texture(windMap, OUT.texCoord / 50.0 + windTraslate) * 2 - 1);
 	vec3 wind = normalize(vec3(windSample.r, 0.0, windSample.g));
-	vec3 rotAxis = normalize(cross(wind, heightNormal));
-	float angle = acos(dot(wind, heightNormal)) * windStrength;
-	angle = clamp(angle + randomAngle, -3.14159 / 3.0, 3.14159 / 3.0);
 	
-	mat3 windRotation = mat3(
-	cos(angle) + rotAxis.x * rotAxis.x * (1.0 - cos(angle)),
-	rotAxis.x * rotAxis.y * (1.0 - cos(angle)) - rotAxis.z * sin(angle),
-	rotAxis.x * rotAxis.z * (1.0 - cos(angle)) + rotAxis.y * sin(angle),
-
-	rotAxis.y * rotAxis.x * (1.0 - cos(angle)) + rotAxis.z * sin(angle),
-	cos(angle) + rotAxis.y * rotAxis.y * (1.0 - cos(angle)),
-	rotAxis.y * rotAxis.z * (1.0 - cos(angle)) - rotAxis.x * sin(angle),
-
-	rotAxis.z * rotAxis.x * (1.0 - cos(angle)) - rotAxis.y * sin(angle),
-	rotAxis.z * rotAxis.y * (1.0 - cos(angle)) + rotAxis.x * sin(angle),
-	cos(angle) + rotAxis.z * rotAxis.z * (1.0 - cos(angle))
-);
-	top = IN[i].worldPos + windRotation * (top - IN[i].worldPos);
-
+	p2 += wind * windStrength;
+	// Wind calc OVER
+	
+	// Swap vertex order depending on camera direction to avoid disabling face culling
 	vec3 cameraToVertex = IN[i].worldPos - cameraPosition;
 	vec3 viewDirection = normalize(cameraToVertex);
 	float frontFace = dot(viewDirection, IN[0].normal);
@@ -142,38 +156,47 @@ void main(void) {
 		baseRight = baseLeft - baseRight;
 		baseLeft = baseLeft - baseRight;
 	}
+	// Vertex order swap OVER 
 	
-	gl_Position = toClipSpace(baseRight);
+	MakePersistentLength(p0, p1, p2, height);
+	// Emit blade
+	vec3 worldPos = toClipSpace(baseRight);
+	OUT.worldPos = worldPos;
+	gl_Position = worldPos;
 	OUT.colour = colourBladeBase; //colourBase;
+	OUT.normal = cross(bitangent, tangent);
 	EmitVertex();
 	
-	gl_Position = toClipSpace(baseLeft);
+	vec3 worldPos = toClipSpace(baseLeft);
+	OUT.worldPos = worldPos;
+	gl_Position = worldPos;
 	EmitVertex();
-
-	for (int i = 1; i < numSegments; ++i) {
-		float t = float(i) / float(numSegments);  // Interpolation factor
+	
+	for (int i = 0; i < numSegments; ++i) {
+		float t = (float(i) / float(numSegments));
+		vec3 centralPoint = bezier(p0, p1, p2, t);
 		
-		float segmentHeight = height * t;
-		float segmentWidth = width * (1 - t);
+		tangent = normalize(bezierDerivative(p0, p1, p2, t));
+        biTangent = normalize(cross(IN.worldPos[i], tangent));
 		
-		vec3 vertLeft = IN[i].worldPos - randomTangent * (segmentWidth / 2.0) + normalize(rotationYMatrix * rotationXMatrix * heightNormal) * segmentHeight;  
-		vec3 vertRight = IN[i].worldPos + randomTangent * (segmentWidth / 2.0) + normalize(rotationYMatrix * rotationXMatrix * heightNormal) * segmentHeight;
+		vec3 vertLeft = centerPos - biTangent * (width * (1 - t) / 2.0); 
+		vec3 vertRight =  = centerPos + biTangent * (width * (1 - t) / 2.0);
 		
-		vertLeft = IN[i].worldPos + t * windRotation * (vertLeft - IN[i].worldPos);
-		vertRight = IN[i].worldPos + t * windRotation * (vertRight - IN[i].worldPos);
-		OUT.colour = mix(colourBladeBase, colourTop, t); //mix(colourBase, colourTop, t);  // Interpolating color
+		OUT.colour = mix(colourBladeBase, colourTop, t);
 		
-		// Emit the segment vertex
-		gl_Position = toClipSpace(vertRight);
+		vec3 worldPos = toClipSpace(vertRight);
+		OUT.worldPos = worldPos;
+		gl_Position = worldPos;
+		OUT.normal = cross(bitangent, tangent);
 		EmitVertex();
-		
-		gl_Position = toClipSpace(vertLeft);
+	
+		vec3 worldPos = toClipSpace(vertLeft);
+		OUT.worldPos = worldPos;
+		gl_Position = worldPos;
+		OUT.normal = cross(sideVec, normalize(bezierDerivative(p0, p1, p2, t)));
 		EmitVertex();
 	}
 	
-	gl_Position = toClipSpace(top);
-	OUT.colour = colourBladeTop; //colourTop;
-	EmitVertex();
-	
 	EndPrimitive();
+	// Emit blade OVER
 }

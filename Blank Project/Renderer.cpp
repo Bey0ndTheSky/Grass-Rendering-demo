@@ -227,7 +227,7 @@ void Renderer::DrawGround() {
 
     shader = shaderVec[GROUND_SHADER];
     BindShader(shader);
-        
+
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "diffuseTex"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, terrainTex);
@@ -247,6 +247,7 @@ void Renderer::DrawGround() {
 	UISystem* ui = UISystem::GetInstance();
     Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
     modelMatrix = Matrix4::Scale(scale) * modelMatrix;
+    textureMatrix = modelMatrix = Matrix4::Scale(scale) * textureMatrix;
     //textureMatrix = Matrix4::Scale(Vector3(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z)) * textureMatrix;
 
 
@@ -282,8 +283,9 @@ void Renderer::DrawGround() {
 			Vector3 scaledPoint = patch.points[j] * scale;
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
-
+        glDisable(GL_CULL_FACE);
         if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
+        glEnable(GL_CULL_FACE);
 	}
 
     modelMatrix.ToIdentity();
