@@ -129,7 +129,7 @@ void main(void) {
     vec3 bladeDir = vec3(cos(randomAngle), 0.0, sin(randomAngle));
     
     // Randomize height and width
-    float height = grassHeight * (0.8 + randValue2 * 0.4); 
+    float height = (grassHeight + 10.0) * (0.8 + randValue2 * 0.4); 
     float width = bladeWidth * (0.7 + randValue * 0.6);   
     
 	vec3 surfaceNormal = IN[idx].normal;
@@ -147,7 +147,7 @@ void main(void) {
     MakePersistentLength(p0, p1, p2, height);
     
 	// Calculate blade's perpendicular direction
-	vec3 bladeRight = normalize(vec3(bladeDirection.z, 0.0, -bladeDirection.x));
+	vec3 bladeRight = normalize(vec3(bladeDir.z, 0.0, -bladeDir.x));
     vec3 bladeTangent = normalize(p1 - p0);
     //vec3 bladeRight = normalize(cross(bladeTangent, surfaceNormal));
 	
@@ -156,25 +156,25 @@ void main(void) {
     vec3 baseRight = p0 + bladeRight * (width / 2.0);
     
     // Check if we need to swap vertices based on view direction
-    vec3 viewDirection = normalize(cameraPosition - p1);
-    vec3 faceNormal = cross(bladeRight, bladeTangent);
+    vec3 viewDirection = normalize(cameraPosition - p0);
+    vec3 faceNormal = cross(bladeRight, surfaceNormal);
     float facingCamera = dot(viewDirection, faceNormal);
     
     if (facingCamera < 0.0) {
         vec3 temp = baseLeft;
         baseLeft = baseRight;
         baseRight = temp;
-        //faceNormal = -faceNormal;
+        faceNormal = -faceNormal;
     }
     
-    // Emit base vertices
+    /*// Emit base vertices
     OUT.worldPos = baseRight;
     OUT.normal = faceNormal;
     OUT.colour = colourBladeBase;
     OUT.texCoord = IN[idx].texCoord;
     OUT.shadowProj = IN[0].shadowProj; 
     gl_Position = toClipSpace(baseRight);
-    EmitVertex();
+    //EmitVertex();
     
     OUT.worldPos = baseLeft;
     OUT.normal = faceNormal;
@@ -182,7 +182,7 @@ void main(void) {
     OUT.texCoord = IN[idx].texCoord;
     OUT.shadowProj = IN[0].shadowProj;
     gl_Position = toClipSpace(baseLeft);
-    EmitVertex();
+    //EmitVertex();*/
     
     // Generate blade segments
     for (int i = 0; i <= numSegments; ++i) {
@@ -192,23 +192,19 @@ void main(void) {
         vec3 centralPoint = bezier(p0, p1, p2, t);
         
         // Calculate tangent and right vector at this point
-        vec3 segmentNormal = normalize(bezierDerivative(p0, p1, p2, t));
-        vec3 segmentRight = normalize(cross(segmentTangent, surfaceNormal));
-        
-        // If we swapped the vertices, we need consistent direction
-        if (facingCamera < 0.0) {
-            //segmentRight = -segmentRight;
-        }
-        
-        // Width tapers toward the tip
+        //vec3 segmentNormal = normalize(bezierDerivative(p0, p1, p2, t));
+        vec3 segmentRight =  bladeRight; // normalize(cross(segmentTangent, surfaceNormal));
         float taperWidth = width * (1.0 - pow(t, 1.5));
         
         // Calculate vertices at this segment
         vec3 vertRight = centralPoint + segmentRight * (taperWidth / 2.0);
         vec3 vertLeft = centralPoint - segmentRight * (taperWidth / 2.0);
         
-        // Calculate proper normal for lighting
+        // Calculate normal for lighting
         vec3 segmentNormal = normalize(cross(segmentRight, bezierDerivative(p0, p1, p2, t)));
+		if (dot(segmentNormal, faceNormal) < 0.0) {
+            segmentNormal = -segmentNormal;
+        }
         
         // Blend colors from base to tip
         OUT.colour = mix(colourBladeBase, colourBladeTop, t);
@@ -217,7 +213,7 @@ void main(void) {
         OUT.worldPos = vertRight;
         OUT.normal = segmentNormal;
         OUT.texCoord = IN[idx].texCoord;
-        OUT.shadowProj = IN[0].shadowProj; // Approximate
+        OUT.shadowProj = IN[idx].shadowProj; // Approximate
         gl_Position = toClipSpace(vertRight);
         EmitVertex();
         
@@ -225,7 +221,7 @@ void main(void) {
         OUT.worldPos = vertLeft;
         OUT.normal = segmentNormal;
         OUT.texCoord = IN[idx].texCoord;
-        OUT.shadowProj = IN[0].shadowProj; // Approximate
+        OUT.shadowProj = IN[idx].shadowProj; // Approximate
         gl_Position = toClipSpace(vertLeft);
         EmitVertex();
     }

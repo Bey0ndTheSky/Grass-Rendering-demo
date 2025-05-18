@@ -100,7 +100,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     frameTime = 0.0f;
 
     light = new Light(dimensions * Vector3(0.2f, 20.0f, 0.5f),
-        Vector4(1, 1, 1, 1), dimensions.x * 4.25f);
+        Vector4(1, 1, 0.4, 1), dimensions.x * 4.25f);
 
     init = true;
 }

@@ -48,5 +48,5 @@ protected:
 
 	float lightPosition = 0.0f;
 	float lightRadius = 4.25f;
-	Vector4 lightColour = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	Vector4 lightColour = Vector4(1.0f, 1.0f, 0.4f, 1.0f);
 };
