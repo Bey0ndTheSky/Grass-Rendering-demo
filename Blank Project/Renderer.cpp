@@ -283,9 +283,9 @@ void Renderer::DrawGround() {
 			Vector3 scaledPoint = patch.points[j] * scale;
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
-        glDisable(GL_CULL_FACE);
+        //glDisable(GL_CULL_FACE);
         if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
 	}
 
     modelMatrix.ToIdentity();
