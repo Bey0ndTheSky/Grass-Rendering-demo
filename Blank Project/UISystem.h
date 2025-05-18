@@ -25,6 +25,8 @@ public:
 	float getLightPosition() { return lightPosition; }
 	float getLightRadius() { return lightRadius; }
 	Vector4 getLightColour() { return lightColour; }
+	Vector4 getGrassColourBase() { return grassColourBase; }
+	Vector4 getGrassColourTop() { return grassColourTop; }
 
 protected:
 	UISystem(HWND handle);
@@ -44,7 +46,9 @@ protected:
 	bool grassColourMode = true;
 	float grassHeight = 25.0f;
 	float grassWidth = 5.0f;
-	float windStrength = 0.3f;
+	Vector4 grassColourBase = Vector4(0.0f, 0.8f, 0.0f, 1.0f);
+	Vector4 grassColourTop = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+	float windStrength = 5.0f;
 
 	float lightPosition = 0.0f;
 	float lightRadius = 4.25f;

@@ -57,7 +57,9 @@ void UISystem::DebugUI() {
 	ImGui::Checkbox("Grass colour mode", &grassColourMode);
 	ImGui::SliderFloat("Grass Height", &grassHeight, 10.0f, 50.0f);
 	ImGui::SliderFloat("Grass Width", &grassWidth, 1.0f, 15.0f);
-	ImGui::SliderFloat("Wind strength", &windStrength, 0.0f, 10.0f);
+	ImGui::ColorEdit3("Select grass base colour", (float*)&grassColourBase);
+	ImGui::ColorEdit3("Select grass top colour", (float*)&grassColourTop);
+	ImGui::SliderFloat("Wind strength", &windStrength, 0.0f, 20.0f);
 
 	ImGui::SliderFloat("Light Height", &lightPosition, 1.0f, 50.0f);
 	ImGui::SliderFloat("Light Radius", &lightRadius, 0.5f, 10.0f);

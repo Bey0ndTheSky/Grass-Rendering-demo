@@ -115,6 +115,7 @@ void main(void) {
     EmitVertex();
     EndPrimitive();
     
+	// Get pseudorandom position and values
     int idx = 0;
     float randValue = rand(IN[idx].worldPos);
 	idx = int(randValue * 3.0);
@@ -125,103 +126,62 @@ void main(void) {
     vec4 colourBladeBase = useGrassColour ? colourBase : IN[0].colour;
 
     float randomAngle = randValue * 2.0 * 3.14159; 
-    float randomTilt = randValue2 * 0.3;
+    float randomTilt = leaningFactor * (0.7 + randValue2 * 0.6);
     vec3 bladeDir = vec3(cos(randomAngle), 0.0, sin(randomAngle));
-    
-    // Randomize height and width
+   
     float height = (grassHeight + 10.0) * (0.8 + randValue2 * 0.4); 
     float width = bladeWidth * (0.7 + randValue * 0.6);   
-    
-	vec3 surfaceNormal = IN[idx].normal;
+	
     // Create bezier control points
+	vec3 surfaceNormal = IN[idx].normal;
     vec3 p0 = IN[idx].worldPos;   
     vec3 p1 = p0 + surfaceNormal * height;
-    vec3 p2 = p1 + bladeDir * height * leaningFactor;
+    vec3 p2 = p1 + bladeDir * height * randomTilt;
     
-    // Apply wind effect
+    // wind 
     vec4 windSample = (texture(windMap, IN[idx].texCoord / 50.0 + windTraslate) * 2.0 - 1.0);
     vec3 wind = normalize(vec3(windSample.r, 0.0, windSample.g));
     p2 += wind * windStrength;
     
-    // Ensure correct length
     MakePersistentLength(p0, p1, p2, height);
-    
-	// Calculate blade's perpendicular direction
-	vec3 bladeRight = normalize(vec3(bladeDir.z, 0.0, -bladeDir.x));
-    vec3 bladeTangent = normalize(p1 - p0);
-    //vec3 bladeRight = normalize(cross(bladeTangent, surfaceNormal));
+	vec3 bladeRight = normalize(vec3(bladeDir.z, 0.0, -bladeDir.x)); // Perpendicular offset for points
 	
-    // Calculate base vertices
-    vec3 baseLeft = p0 - bladeRight * (width / 2.0);
-    vec3 baseRight = p0 + bladeRight * (width / 2.0);
-    
-    // Check if we need to swap vertices based on view direction
+	// Vertex order check
     vec3 viewDirection = normalize(cameraPosition - p0);
     vec3 faceNormal = cross(bladeRight, surfaceNormal);
     float facingCamera = dot(viewDirection, faceNormal);
     
     if (facingCamera < 0.0) {
-        vec3 temp = baseLeft;
-        baseLeft = baseRight;
-        baseRight = temp;
         faceNormal = -faceNormal;
     }
-    
-    /*// Emit base vertices
-    OUT.worldPos = baseRight;
-    OUT.normal = faceNormal;
-    OUT.colour = colourBladeBase;
-    OUT.texCoord = IN[idx].texCoord;
-    OUT.shadowProj = IN[0].shadowProj; 
-    gl_Position = toClipSpace(baseRight);
-    //EmitVertex();
-    
-    OUT.worldPos = baseLeft;
-    OUT.normal = faceNormal;
-    OUT.colour = colourBladeBase;
-    OUT.texCoord = IN[idx].texCoord;
-    OUT.shadowProj = IN[0].shadowProj;
-    gl_Position = toClipSpace(baseLeft);
-    //EmitVertex();*/
-    
+  
     // Generate blade segments
     for (int i = 0; i <= numSegments; ++i) {
         float t = float(i) / float(numSegments);
-        
-        // Calculate position on bezier curve
+   
         vec3 centralPoint = bezier(p0, p1, p2, t);
-        
-        // Calculate tangent and right vector at this point
-        //vec3 segmentNormal = normalize(bezierDerivative(p0, p1, p2, t));
-        vec3 segmentRight =  bladeRight; // normalize(cross(segmentTangent, surfaceNormal));
         float taperWidth = width * (1.0 - pow(t, 1.5));
         
-        // Calculate vertices at this segment
-        vec3 vertRight = centralPoint + segmentRight * (taperWidth / 2.0);
-        vec3 vertLeft = centralPoint - segmentRight * (taperWidth / 2.0);
+        vec3 vertRight = centralPoint + bladeRight * (taperWidth / 2.0);
+        vec3 vertLeft = centralPoint - bladeRight * (taperWidth / 2.0);
         
-        // Calculate normal for lighting
-        vec3 segmentNormal = normalize(cross(segmentRight, bezierDerivative(p0, p1, p2, t)));
+        // Normal for lighting using derivative
+        vec3 segmentNormal = normalize(cross(bladeRight, bezierDerivative(p0, p1, p2, t)));
 		if (dot(segmentNormal, faceNormal) < 0.0) {
-            segmentNormal = -segmentNormal;
+            segmentNormal = -segmentNormal; // Keep normal consistent across all blade
         }
         
-        // Blend colors from base to tip
         OUT.colour = mix(colourBladeBase, colourBladeTop, t);
         
-        // Emit right vertex
         OUT.worldPos = vertRight;
         OUT.normal = segmentNormal;
         OUT.texCoord = IN[idx].texCoord;
-        OUT.shadowProj = IN[idx].shadowProj; // Approximate
+        OUT.shadowProj = IN[idx].shadowProj;
         gl_Position = toClipSpace(vertRight);
         EmitVertex();
         
         // Emit left vertex
         OUT.worldPos = vertLeft;
-        OUT.normal = segmentNormal;
-        OUT.texCoord = IN[idx].texCoord;
-        OUT.shadowProj = IN[idx].shadowProj; // Approximate
         gl_Position = toClipSpace(vertLeft);
         EmitVertex();
     }

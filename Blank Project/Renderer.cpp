@@ -262,8 +262,8 @@ void Renderer::DrawGround() {
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windStrength"), windStrength);
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "cameraPosition"), 1, (float*)&camera->GetPosition());
-    glUniform4f(glGetUniformLocation(shader->GetProgram(), "colourBase"), 0.0f, 0.8f, 0.0f, 1.0f);  // Green
-    glUniform4f(glGetUniformLocation(shader->GetProgram(), "colourTop"), 1.0f, 1.0f, 0.0f, 1.0f);  // Yellow
+    glUniform4fv(glGetUniformLocation(shader->GetProgram(), "colourBase"), 1, (float*)&ui->getGrassColourBase());  // Green
+    glUniform4fv(glGetUniformLocation(shader->GetProgram(), "colourTop"), 1, (float*)&ui->getGrassColourTop());  // Yellow
     
     UpdateShaderMatrices();
     SetShaderLight(*light);
