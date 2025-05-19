@@ -12,7 +12,7 @@
 Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     quad = Mesh::GenerateQuad();
 
-    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 32);
+    heightMap = new HeightMap(TEXTUREDIR "valleyTex.png", 20);
     camera = new Camera(-12, 225, Vector3());
 
     Vector3 dimensions = heightMap->GetHeightmapSize(); // *Vector3(121.0, 9.0, 121.0);
@@ -100,7 +100,7 @@ Renderer::Renderer(Window& parent) : OGLRenderer(parent) {
     frameTime = 0.0f;
 
     light = new Light(dimensions * Vector3(0.2f, 20.0f, 0.5f),
-        Vector4(1, 1, 1, 1), dimensions.x * 4.25f);
+        Vector4(1, 1, 0.4, 1), dimensions.x * 4.25f);
 
     init = true;
 }
@@ -135,15 +135,22 @@ void Renderer::UpdateScene(float dt) {
     gravity = gravity > 0.981f ? gravity - 0.981f : gravity;
     gravity += dt;
 
+    UISystem* ui = UISystem::GetInstance();
+
     windTranslate += dt * (0.015f + cos(dt * 0.01f) * 0.01f);
-    windStrength = 0.3f * sin(dt * 0.05f) * 0.29;
+    windStrength = ui->getWindStrength() + sin(dt * 0.05f) * 0.29;
 
     frameFrustum.FromMatrix(projMatrix * viewMatrix);
 
     lightParam += dt * 0.005f;
-    light->SetPosition(light->GetPosition() + Vector3(1, 5, 0) * dt * 0.005f * heightMap->GetHeightmapSize().x);
-    light->SetColour(lerp(Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector4(1.0f, 0.5f, 0.0f, 1.0f), lightParam));
-   
+
+	Vector3 dimensions = heightMap->GetHeightmapSize();
+    
+    light->SetPosition((Vector3(0.2f, 20.0f, 0.5f) * dimensions + Vector3(0, dimensions.x, 0) * ui->getLightPosition()));
+    //light->SetPosition((light->GetPosition() + Vector3(1, 5, 0) * dt * 0.005f * heightMap->GetHeightmapSize().x) + Vector3(0, heightMap->GetHeightmapSize().x, 0) * ui->getLightPosition());
+    light->SetColour(lerp(ui->getLightColour(), Vector4(1.0f, 0.5f, 0.0f, 1.0f), lightParam));
+	light->SetRadius(ui->getLightRadius() * 4.25f * dimensions.x);
+
     postTex = 0;
 }
 
@@ -235,6 +242,7 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
+    glUniform3fv(glGetUniformLocation(shader->GetProgram(), "cameraPosition"), 1, (float*)&camera->GetPosition());
 
     UpdateShaderMatrices();
     SetShaderLight(*light);
@@ -261,39 +269,49 @@ void Renderer::DrawGround() {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
 
-	
-    //textureMatrix = Matrix4::Scale(Vector3(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z)) * textureMatrix;
-
+	UISystem* ui = UISystem::GetInstance();
+    Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
+    modelMatrix = Matrix4::Scale(scale) * modelMatrix;
+    textureMatrix = modelMatrix = Matrix4::Scale(scale) * textureMatrix;
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "colourMode"), ui->getColourMode());
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "useGrassColour"), ui->getGrassColour());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 2.0f);
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), 25.0f);
-    glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), 5.0f);
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), ui->getGrassHeight());
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), ui->getGrassWidth());
 
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windTraslate"), windTranslate);
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "windStrength"), windStrength);
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "cameraPosition"), 1, (float*)&camera->GetPosition());
-    glUniform4f(glGetUniformLocation(shader->GetProgram(), "colourBase"), 0.0f, 0.8f, 0.0f, 1.0f);  // Green
-    glUniform4f(glGetUniformLocation(shader->GetProgram(), "colourTop"), 1.0f, 1.0f, 0.0f, 1.0f);  // Yellow
+    glUniform4fv(glGetUniformLocation(shader->GetProgram(), "colourBase"), 1, (float*)&ui->getGrassColourBase());  // Green
+    glUniform4fv(glGetUniformLocation(shader->GetProgram(), "colourTop"), 1, (float*)&ui->getGrassColourTop());  // Yellow
     
     UpdateShaderMatrices();
     SetShaderLight(*light);
     //heightMap->Draw(); DRAW THE ENTIRE THING
     heightMap->SetPrimitiveType(GL_PATCHES);
 
+	vector<Patch> patches = heightMap->GetPatches();
+    std::sort(patches.begin(), patches.end(),
+        [&](const Patch& a, const Patch& b) {
+            return camera->CompareByCameraDistance(a.points[4], b.points[4]);
+        });
+
     for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) {
 		bool cull = true;
+		Patch patch = patches[i];
+
         for (int j = 0; j < 4; ++j) {
-			Vector3 scaledPoint = heightMap->GetPatch(i).points[j] * scale;
+			Vector3 scaledPoint = patch.points[j] * scale;
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
-
-		if (!cull) heightMap->DrawSubMesh(i);
+        //glDisable(GL_CULL_FACE);
+        if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
+        //glEnable(GL_CULL_FACE);
 	}
-    
+
     modelMatrix.ToIdentity();
     textureMatrix.ToIdentity();
 }

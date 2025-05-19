@@ -5,7 +5,12 @@
 class Frustum;
 
 struct Patch {
-    Vector3 points[4];
+	Vector3 points[5];
+	int index;
+
+    void CalcCentre() {
+        points[4] = (points[0] + points[1] + points[2] + points[3]) * 0.25f;
+    }
 };
 
 class HeightMap : public Mesh {
@@ -14,7 +19,7 @@ public:
     ~HeightMap();
 
     Vector3 GetHeightmapSize() const { return heightmapSize; }
-	Patch GetPatch(int i) const { return patches[i]; }
+    vector<Patch> GetPatches() const { return patches; }
     Vector3 GetWorldCoordinatesFromTextureCoords(float u, float v);
 
 protected:
