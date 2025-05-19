@@ -248,7 +248,6 @@ void Renderer::DrawGround() {
     Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
     modelMatrix = Matrix4::Scale(scale) * modelMatrix;
     textureMatrix = modelMatrix = Matrix4::Scale(scale) * textureMatrix;
-    //textureMatrix = Matrix4::Scale(Vector3(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z)) * textureMatrix;
 
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);

@@ -37,7 +37,7 @@ uniform sampler2D windMap;
 uniform float windTraslate;
 uniform float windStrength;
 
-const int numSegments = 4;
+const int numSegments = 5;
 const float leaningFactor= 0.3;
     
 vec4 toClipSpace(vec3 coord){
