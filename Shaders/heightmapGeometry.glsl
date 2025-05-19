@@ -84,37 +84,6 @@ void MakePersistentLength(in vec3 v0, inout vec3 v1, inout vec3 v2, in float hei
 
 void main(void) {
 
-    // Draw ground
-    gl_Position = gl_in[0].gl_Position;
-    OUT.texCoord = IN[0].texCoord;
-    OUT.colour = IN[0].colour;
-    OUT.normal = IN[0].normal;
-    OUT.tangent = IN[0].tangent;
-    OUT.binormal = IN[0].binormal;
-    OUT.worldPos = IN[0].worldPos;
-    OUT.shadowProj = IN[0].shadowProj;
-    EmitVertex();
-
-    gl_Position = gl_in[1].gl_Position;
-    OUT.texCoord = IN[1].texCoord;
-    OUT.colour = IN[1].colour;
-    OUT.normal = IN[1].normal;
-    OUT.tangent = IN[1].tangent;
-    OUT.binormal = IN[1].binormal;
-    OUT.worldPos = IN[1].worldPos;
-    OUT.shadowProj = IN[1].shadowProj;
-    EmitVertex();
-
-    gl_Position = gl_in[2].gl_Position;
-    OUT.texCoord = IN[2].texCoord;
-    OUT.colour = IN[2].colour;
-    OUT.normal = IN[2].normal;
-    OUT.tangent = IN[2].tangent;
-    OUT.binormal = IN[2].binormal;
-    OUT.worldPos = IN[2].worldPos;
-    OUT.shadowProj = IN[2].shadowProj;
-    EmitVertex();
-    EndPrimitive();
     
 	// Get pseudorandom position and values
     int idx = 0;
