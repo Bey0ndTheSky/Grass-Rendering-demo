@@ -231,6 +231,7 @@ void Renderer::DrawGround() {
     UISystem* ui = UISystem::GetInstance();
     Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
     modelMatrix = Matrix4::Scale(scale) * modelMatrix;
+    textureMatrix = modelMatrix = Matrix4::Scale(scale) * textureMatrix;
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);
 
@@ -268,11 +269,6 @@ void Renderer::DrawGround() {
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "shadowTex"), 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
-
-	UISystem* ui = UISystem::GetInstance();
-    Vector3 scale = Vector3(ui->getVertexScale(), ui->getheightScale() + 0.10, ui->getVertexScale());
-    modelMatrix = Matrix4::Scale(scale) * modelMatrix;
-    textureMatrix = modelMatrix = Matrix4::Scale(scale) * textureMatrix;
 
     glUniform3fv(glGetUniformLocation(shader->GetProgram(), "VertexScale"), 1, (float*)&scale);
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "colourMode"), ui->getColourMode());
