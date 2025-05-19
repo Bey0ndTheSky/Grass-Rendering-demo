@@ -31,7 +31,7 @@ uniform bool colourMode = false;
 const float MAX_TESS_LEVEL = 3.0;        // Maximum tessellation for closest geometry
 const float MIN_TESS_LEVEL = 1.5;         // Minimum tessellation for distant geometry
 
-const float NEAR_DISTANCE = 1000.0;        // Distance for maximum tessellation
+const float NEAR_DISTANCE = 5000.0;        // Distance for maximum tessellation
 const float FAR_DISTANCE = 30000000.0;        // Distance for minimum tessellation
 
 

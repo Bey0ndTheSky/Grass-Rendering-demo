@@ -185,7 +185,7 @@ void Renderer::DrawScene() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void Renderer::DrawPostProcess() {
-   /*
+   
     glBindFramebuffer(GL_FRAMEBUFFER, processFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -208,7 +208,7 @@ void Renderer::DrawPostProcess() {
 
     postTex = !postTex;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glEnable(GL_DEPTH_TEST);*/
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::changeScene() {
@@ -356,7 +356,7 @@ void Renderer::SetShaders() {
     new Shader("HeightmapVertex.glsl", "HeightmapFragment.glsl"),
     new Shader("HeightmapVertex.glsl", "HeightmapFragment.glsl", "heightmapGeometry.glsl" , "groundTCS.glsl", "groundTES.glsl"), // "heightmapGeometry.glsl"
     new Shader("skyboxVertex.glsl", "skyboxFragment.glsl"),
-    //new Shader("TexturedVertex.glsl", "fxaa.glsl"),
+    new Shader("TexturedVertex.glsl", "fxaa.glsl"),
     new Shader("TexturedVertex.glsl", "TexturedFragment.glsl"),
     new Shader("shadowVert.glsl","shadowFrag.glsl")
     };

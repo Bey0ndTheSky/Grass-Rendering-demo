@@ -16,7 +16,7 @@ enum ShaderIndices{
         GROUND_SHADER,
         GRASS_SHADER,
         SKYBOX_SHADER,
-       // POST_PROCESS_SHADER,
+        POST_PROCESS_SHADER,
         RENDER_SHADER,
         SHADOW_SHADER
 };
@@ -65,7 +65,7 @@ protected:
     Mesh* snow;
     Light* light;
 
-    bool postProcess = false;
+    bool postProcess = true;
     int postTex = 0;
     float lightParam = 0.0f;
     int currentFrame;
