@@ -1,7 +1,7 @@
 #version 330 core
 
 layout(triangles) in;  
-layout(triangle_strip, max_vertices = 12) out; 
+layout(triangle_strip, max_vertices = 42) out; 
 
 in Vertex {
     vec2 texCoord;
@@ -37,7 +37,7 @@ uniform sampler2D windMap;
 uniform float windTraslate;
 uniform float windStrength;
 
-const int numSegments = 5;
+uniform int numSegments = 5;
 const float leaningFactor= 0.3;
     
 vec4 toClipSpace(vec3 coord){
@@ -83,8 +83,6 @@ void MakePersistentLength(in vec3 v0, inout vec3 v1, inout vec3 v2, in float hei
 }
 
 void main(void) {
-
-    
 	// Get pseudorandom position and values
     int idx = 0;
     float randValue = rand(IN[idx].worldPos);
@@ -147,6 +145,7 @@ void main(void) {
         OUT.normal = segmentNormal;
         OUT.texCoord = IN[idx].texCoord;
         OUT.shadowProj = IN[idx].shadowProj;
+
         gl_Position = toClipSpace(vertRight);
         EmitVertex();
         

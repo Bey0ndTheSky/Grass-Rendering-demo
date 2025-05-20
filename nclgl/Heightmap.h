@@ -19,7 +19,7 @@ public:
     ~HeightMap();
 
     Vector3 GetHeightmapSize() const { return heightmapSize; }
-    vector<Patch> GetPatches() const { return patches; }
+    vector<Patch>& GetPatches() { return patches; }
     Vector3 GetWorldCoordinatesFromTextureCoords(float u, float v);
 
 protected:

@@ -43,11 +43,11 @@ void main(void) {
               dir * rcpDirMin)) * delta;
       
     vec3 rgbA = 0.5 * (
-        texture2D(sceneTex, IN.texCoord + dir * (1.0 / 3.0 - 0.5)).xyz +
-        texture2D(sceneTex, IN.texCoord + dir * (2.0 / 3.0 - 0.5)).xyz);
+        texture(sceneTex, IN.texCoord + dir * (1.0 / 3.0 - 0.5)).xyz +
+        texture(sceneTex, IN.texCoord + dir * (2.0 / 3.0 - 0.5)).xyz);
     vec3 rgbB = rgbA * 0.5 + 0.25 * (
-        texture2D(sceneTex, IN.texCoord + dir * -0.5).xyz +
-        texture2D(sceneTex, IN.texCoord + dir * 0.5).xyz);
+        texture(sceneTex, IN.texCoord + dir * -0.5).xyz +
+        texture(sceneTex, IN.texCoord + dir * 0.5).xyz);
 
     float lumaB = dot(rgbB, luma);
     if ((lumaB < lumaMin) || (lumaB > lumaMax))

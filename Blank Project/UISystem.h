@@ -18,6 +18,7 @@ public:
 	float getheightScale() { return heightScale; }
 	bool getColourMode() { return colourMode; }
 	bool getGrassColour() { return grassColourMode; }
+	int getSegmentLength() { return segmentLength; }
 
 	float getGrassHeight() { return grassHeight; }
 	float getGrassWidth() { return grassWidth; }
@@ -46,6 +47,7 @@ protected:
 	bool grassColourMode = true;
 	float grassHeight = 25.0f;
 	float grassWidth = 5.0f;
+	int segmentLength = 5;
 	Vector4 grassColourBase = Vector4(0.0f, 0.8f, 0.0f, 1.0f);
 	Vector4 grassColourTop = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
 	float windStrength = 5.0f;

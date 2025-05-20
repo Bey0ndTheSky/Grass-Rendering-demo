@@ -131,7 +131,7 @@ void Renderer::UpdateScene(float dt) {
         static_cast<float>(width) / static_cast<float>(height),
         45.0f);
 
-    frameTime -= dt;
+    frameTime += dt;
     gravity = gravity > 0.981f ? gravity - 0.981f : gravity;
     gravity += dt;
 
@@ -274,6 +274,7 @@ void Renderer::DrawGround() {
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "colourMode"), ui->getColourMode());
     glUniform1i(glGetUniformLocation(shader->GetProgram(), "useGrassColour"), ui->getGrassColour());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "dispFactor"), 2.0f);
+    glUniform1i(glGetUniformLocation(shader->GetProgram(), "numSegments"), ui->getSegmentLength());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "grassHeight"), ui->getGrassHeight());
     glUniform1f(glGetUniformLocation(shader->GetProgram(), "bladeWidth"), ui->getGrassWidth());
 
@@ -289,11 +290,15 @@ void Renderer::DrawGround() {
     //heightMap->Draw(); DRAW THE ENTIRE THING
     heightMap->SetPrimitiveType(GL_PATCHES);
 
-	vector<Patch> patches = heightMap->GetPatches();
-    std::sort(patches.begin(), patches.end(),
-        [&](const Patch& a, const Patch& b) {
-            return camera->CompareByCameraDistance(a.points[4], b.points[4]);
-        });
+	vector<Patch>& patches = heightMap->GetPatches();
+
+    if (frameTime > (0.5f + scale.x * 0.1f)) {
+		frameTime -= 0.5f + scale.x * 0.1f;
+        std::sort(patches.begin(), patches.end(),
+            [&](const Patch& a, const Patch& b) {
+                return camera->CompareByCameraDistance(a.points[4], b.points[4]);
+            });
+	}
 
     for (int i = 0; i < heightMap->GetSubMeshCount(); ++i) {
 		bool cull = true;
