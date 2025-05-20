@@ -140,7 +140,7 @@ void main(void) {
             //segmentNormal = -segmentNormal; // Keep normal consistent across all blade
 			bladeRight = -bladeRight;
         }
-		else{
+		if (dot(segmentNormal, vec3(0, 1, 0)) < 0.1){
 			segmentNormal = -segmentNormal;
 		}
         
