@@ -134,10 +134,15 @@ void main(void) {
         vec3 vertLeft = centralPoint - bladeRight * (taperWidth / 2.0);
         
         // Normal for lighting using derivative
+		vec3 viewDirection = normalize(centralPoint - cameraPosition);
         vec3 segmentNormal = normalize(cross(bladeRight, bezierDerivative(p0, p1, p2, t)));
-		if (dot(segmentNormal, faceNormal) < 0.0) {
-            segmentNormal = -segmentNormal; // Keep normal consistent across all blade
+		if (dot(segmentNormal, viewDirection) < 0.0) {
+            //segmentNormal = -segmentNormal; // Keep normal consistent across all blade
+			bladeRight = -bladeRight;
         }
+		else{
+			segmentNormal = -segmentNormal;
+		}
         
         OUT.colour = mix(colourBladeBase, colourBladeTop, t);
         
