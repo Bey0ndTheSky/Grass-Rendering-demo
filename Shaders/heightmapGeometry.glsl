@@ -1,7 +1,7 @@
 #version 330 core
 
 layout(triangles) in;  
-layout(triangle_strip, max_vertices = 42) out; 
+layout(triangle_strip, max_vertices = 12) out; 
 
 in Vertex {
     vec2 texCoord;
@@ -123,9 +123,12 @@ void main(void) {
         faceNormal = -faceNormal;
     }
   
+	float cameraDistance = distance(cameraPosition, p0);
+	int numSegmentsUsed = max(numSegments - 2, numSegments - int(cameraDistance * 0.00025));
+	
     // Generate blade segments
-    for (int i = 0; i <= numSegments; ++i) {
-        float t = float(i) / float(numSegments);
+    for (int i = 0; i <= numSegmentsUsed; ++i) {
+        float t = float(i) / float(numSegmentsUsed);
    
         vec3 centralPoint = bezier(p0, p1, p2, t);
         float taperWidth = width * (1.0 - pow(t, 1.5));
