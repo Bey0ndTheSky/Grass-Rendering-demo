@@ -296,7 +296,7 @@ void Renderer::DrawGround() {
 		frameTime -= 0.5f + scale.x * 0.1f;
         std::sort(patches.begin(), patches.end(),
             [&](const Patch& a, const Patch& b) {
-                return camera->CompareByCameraDistance(a.points[4], b.points[4]);
+                return camera->CompareByCameraDistance(a.points[4] * scale, b.points[4] * scale);
             });
 	}
 
@@ -309,7 +309,7 @@ void Renderer::DrawGround() {
 			cull &= !frameFrustum.InsideFrustum(scaledPoint, scale.x);
 		}
         //glDisable(GL_CULL_FACE);
-        if (!cull) heightMap->DrawSubMesh(patch.index); //patches.push_back(i);  
+        if (!cull) heightMap->DrawSubMesh(patch.index);
         //glEnable(GL_CULL_FACE);
 	}
 
